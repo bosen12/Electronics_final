@@ -1,0 +1,205 @@
+\documentclass[12pt]{article}
+\usepackage{eedu}
+\renewcommand{\leftmark}{第 11 章\quad BJT 數位電路}
+
+\newcommand{\note}[1]{\par\smallskip\noindent{\small\itshape\color{maincol}（模型假設：#1）}\par}
+
+\begin{document}
+
+\begin{center}
+{\Huge\bfseries\color{maincol} 第 11 章\quad BJT 數位電路}\\[0.4em]
+{\large\color{keycol} 重點整理 \;\&\; 章末習題詳解}
+\end{center}
+\vspace{0.4em}\hrule\vspace{1em}
+
+%=====================================================================
+\section*{一、重點整理}
+\markboth{第 11 章\quad BJT 數位電路}{}
+\addcontentsline{toc}{section}{重點整理}
+
+\begin{keybox}[11.1\ \ 簡單 BJT 反相器（圖 P11.1）]
+npn 電晶體配汲極（集極）電阻 $R_C$，基極串 $R_B$：
+\begin{itemize}[leftmargin=2.2em,itemsep=1pt]
+  \item $V_i=V_L$：$V_{BE}<V_{BE(on)}$，Q 截止（cutoff）$\Rightarrow V_o=V_{CC}$（高電位）。
+  \item $V_i=V_H$：Q 飽和（saturation）$\Rightarrow V_o=V_{CE(sat)}\approx0.2$ V（低電位），且持續耗電（靜態功率）。
+\end{itemize}
+\begin{formulabox}
+\[ I_B=\frac{V_H-V_{BE(on)}}{R_B}\;(11.1),\quad
+   I_C=\frac{V_{CC}-V_{CE(sat)}}{R_C}\;(11.2),\quad
+   \text{飽和條件：}\;I_B\ge\frac{I_C}{\beta}\;(11.3) \]
+\end{formulabox}
+\end{keybox}
+
+\begin{keybox}[11.2\ \ TTL 電路]
+\textbf{互補式 BJT}（仿 CMOS）無法當良好反相器：BJT 不像 FET 能用閘極電壓關斷——
+當一管導通時，另一管的 B--E 仍承受大電壓（$\gg0.7$ V）而無法截止。
+故改用\textbf{電阻-電晶體邏輯 RTL}，再演進為\textbf{電晶體-電晶體邏輯 TTL}（圖 11.5）。\\
+標準 TTL 典型參數：
+\begin{formulabox}
+\[ V_{OH}=2.4\text{ V},\ V_{OL}=0.4\text{ V},\ V_{IL}=0.8\text{ V},\ V_{IH}=2\text{ V},\
+   NM_L=NM_H=0.4\text{ V} \]
+\[ t_p\approx10\text{ ns},\quad P\approx11\text{ mW},\quad DP\approx110\text{ pJ} \]
+\end{formulabox}
+\textbf{常見系列：} 74S（Schottky，於 BJT 之 B--C 加蕭特基二極體防飽和，$t_p\!\approx\!3$ ns、$P\!\approx\!20$ mW）；
+74LS（低功率 Schottky，$t_p\!\approx\!10$ ns、$P\!\approx\!2$ mW）；74AS／74ALS（進階改良）。
+\end{keybox}
+
+\begin{keybox}[11.3\ \ BiCMOS 電路（圖 P11.5）]
+結合 CMOS（低靜態功率、高雜訊邊界）與 BJT（大電流、可驅動大電容、速度快）的優點。
+\begin{itemize}[leftmargin=2.2em,itemsep=1pt]
+  \item 基本型（圖 11.8 / P11.5）：輸出級為兩顆 npn 射極隨耦器，故輸出\textbf{非全擺幅}：
+        \[ V_{OH}=V_{DD}-V_{BE(on)},\qquad V_{OL}=V_{BE(on)} \]
+  \item 改良型（圖 11.11）：加 $R_1$、$R_2$ 使輸出可達 $V_{DD}$ 與 $0$（全擺幅）。
+  \item 再以 MOSFET $M_1$、$M_2$ 取代 $R_1$、$R_2$（圖 11.14），節省面積。
+\end{itemize}
+BJT 之電流增益使對輸出電容的充放電電流被放大 $(\beta+1)$ 倍，等效電阻降為 $R_{ON}/(\beta+1)$，故速度極快。
+\end{keybox}
+
+\bigskip\hrule\vspace{0.6em}
+
+%=====================================================================
+\section*{二、章末習題詳解}
+\addcontentsline{toc}{section}{章末習題詳解}
+
+\noindent{\small\itshape 題目共同條件：npn 之 $V_{BE(on)}=0.7$ V、$V_{CE(sat)}=0.2$ V、$\beta=100$；
+pnp 之 $V_{EB(on)}=0.7$ V、$V_{EC(sat)}=0.2$ V、$\beta=100$；$V_L=0.2$ V、$V_H=5$ V。}
+\medskip
+
+%---------------------------------------------------------------
+\begin{minipage}{0.64\linewidth}
+\prob{圖 P11.1，$V_{CC}=5$ V、$V_L=0.2$ V、$V_H=5$ V。
+\\(1) 設計 $R_C$、$R_B$ 使 $V_i=V_H$ 時 $I_C=2$ mA 且 $I_B=0.1$ mA。
+\\(2) 求反相器的平均靜態功率損耗。}
+\end{minipage}\hfill
+\begin{minipage}{0.33\linewidth}
+\figc{fig/P11_1.png}{0.92\linewidth}{圖 P11.1}
+\end{minipage}
+
+\sol
+\textbf{(1)} 由 (11.1)(11.2)：
+\[ R_C=\frac{V_{CC}-V_{CE(sat)}}{I_C}=\frac{5-0.2}{2\,\text{mA}}=2.4\ \text{k}\Omega,\qquad
+   R_B=\frac{V_H-V_{BE(on)}}{I_B}=\frac{5-0.7}{0.1\,\text{mA}}=43\ \text{k}\Omega. \]
+（驗證飽和：$I_C/\beta=2\text{m}/100=20\,\mu$A $<I_B=0.1$ mA，確為飽和。）\\
+\textbf{(2)} $V_i=V_H$（Q 飽和）：$P_{ON}=V_{CC}I_C+V_H I_B=5\times2\text{m}+5\times0.1\text{m}=10.5$ mW。
+$V_i=V_L$（Q 截止）：$P_{OFF}=0$。
+\[ P=\tfrac12(P_{ON}+P_{OFF})=\tfrac12(10.5+0)=5.25\ \text{mW}. \]
+\ans{(1) $R_C=2.4$ k$\Omega$、$R_B=43$ k$\Omega$。\;(2) $P_{avg}=5.25$ mW。}
+
+%---------------------------------------------------------------
+\prob{承上題（圖 P11.1）。(1) $R_C=10$ k$\Omega$，求 $R_B$ 的最大值。\;(2) $R_B=1$ k$\Omega$，求 $R_C$ 的最小值。}
+\sol 維持飽和的條件為 $I_B\ge I_C/\beta$（即 $\beta I_B\ge I_C$）。\\
+\textbf{(1)} $I_C=\dfrac{5-0.2}{10\text{k}}=0.48$ mA $\Rightarrow I_{B,\min}=\dfrac{I_C}{\beta}=\dfrac{0.48\text{m}}{100}=4.8\ \mu$A。
+\[ I_B=\frac{V_H-V_{BE(on)}}{R_B}=\frac{4.3}{R_B}\ge4.8\,\mu\text{A}
+   \ \Rightarrow\ R_B\le\frac{4.3}{4.8\,\mu}\approx896\ \text{k}\Omega. \]
+\textbf{(2)} $I_B=\dfrac{5-0.7}{1\text{k}}=4.3$ mA $\Rightarrow$ 飽和需 $I_C\le\beta I_B=100\times4.3\text{m}=430$ mA。
+\[ I_C=\frac{5-0.2}{R_C}\le430\,\text{mA}\ \Rightarrow\ R_C\ge\frac{4.8}{0.43}\approx11.2\ \Omega. \]
+\ans{(1) $R_{B,\max}\approx896$ k$\Omega$。\;(2) $R_{C,\min}\approx11.2\ \Omega$。}
+
+%---------------------------------------------------------------
+\begin{minipage}{0.64\linewidth}
+\prob{圖 P11.2 中 $V_{CC}=5$ V、$V_L=0.2$ V、$V_H=4.8$ V。若 $R_B=10$ k$\Omega$，計算反相器的平均靜態功率損耗。}
+\end{minipage}\hfill
+\begin{minipage}{0.33\linewidth}
+\figc{fig/P11_2.png}{0.86\linewidth}{圖 P11.2}
+\end{minipage}
+
+\sol 圖 P11.2 為互補式（pnp 上、npn 下）推挽反相器，兩基極各串 $R_B$。
+\note{輸出端無外接負載，僅計由 $V_{CC}$ 供應之電流（一管導通、另一管截止，無集極電流，只有基極電流）}
+$V_i=V_L=0.2$ V：pnp 導通，其基極電壓 $=V_{CC}-V_{EB(on)}=4.3$ V，
+\[ I_B=\frac{4.3-V_L}{R_B}=\frac{4.3-0.2}{10\text{k}}=0.41\ \text{mA}\ (\text{由 }V_{CC}\text{ 供應}),\quad
+   P_L=V_{CC}I_B=5\times0.41=2.05\ \text{mW}. \]
+$V_i=V_H=4.8$ V：npn 導通，其基極電流由\emph{輸入源}供應（非 $V_{CC}$），故 $V_{CC}$ 供電 $\approx0\Rightarrow P_H\approx0$。
+\[ P=\tfrac12(P_L+P_H)=\tfrac12(2.05+0)\approx1.03\ \text{mW}. \]
+\ans{$P_{avg}\approx1.03$ mW。}
+
+%---------------------------------------------------------------
+\prob{承上題（圖 P11.2），設計 $R_B$ 使反相器的平均靜態功率損耗 $=3$ mW。}
+\sol 由上題 $P_{avg}=\dfrac12\cdot\dfrac{V_{CC}(V_{CC}-V_{EB(on)}-V_L)}{R_B}
+=\dfrac12\cdot\dfrac{5\times4.1}{R_B}=\dfrac{10.25}{R_B}\ (\text{mW},\,R_B\text{ 以 k}\Omega)$。
+\[ \frac{10.25}{R_B}=3\ \Rightarrow\ R_B=\frac{10.25}{3}\approx3.42\ \text{k}\Omega. \]
+\ans{$R_B\approx3.42$ k$\Omega$。}
+
+%---------------------------------------------------------------
+\begin{minipage}{0.62\linewidth}
+\prob{圖 P11.3 是 TTL 的輸入電路，$V_{CC}=5$ V、$V_L=0.2$ V、$V_H=3.6$ V（$R_3=4$ k$\Omega$、$R_2=1.6$ k$\Omega$、$R_1=1$ k$\Omega$）。求此電路的平均靜態功率損耗。}
+\end{minipage}\hfill
+\begin{minipage}{0.35\linewidth}
+\figc{fig/P11_3.png}{0.96\linewidth}{圖 P11.3}
+\end{minipage}
+
+\sol 靜態功率 $=V_{CC}\times$（由 $V_{CC}$ 流出的平均電流）。$R_3$ 為輸入管 $Q_4$ 之基極電阻。
+\note{輸出端 A 不接負載；以主要直流路徑估算}
+\textbf{$V_i=V_L=0.2$ V：}$Q_4$ 飽和把 $Q_3$ 基極拉低 $\Rightarrow Q_3$ 截止。主要電流經 $R_3\to Q_4$ 之 B--E $\to$ 輸入端：
+\[ I_L=\frac{V_{CC}-V_{BE(on)}-V_L}{R_3}=\frac{5-0.7-0.2}{4\text{k}}=1.025\ \text{mA},\quad P_L=V_{CC}I_L\approx5.13\ \text{mW}. \]
+\textbf{$V_i=V_H=3.6$ V：}$Q_4$ 進入反相主動模式，電流經 $R_3\to Q_4$ 之 B--C $\to Q_3$ 基極導通，
+$Q_4$ 基極箝在 $V_{BC}+V_{BE,Q3}=1.4$ V；同時 $R_2$ 經導通的 $Q_3$ 對地有電流：
+\[ I_H\approx\frac{V_{CC}-1.4}{R_3}+\frac{V_{CC}-V_{CE,Q3}}{R_2}
+   =\frac{3.6}{4\text{k}}+\frac{5-0.2}{1.6\text{k}}\approx0.9+3.0=3.9\ \text{mA},\ \ P_H\approx19.5\ \text{mW}. \]
+\[ P=\tfrac12(P_L+P_H)\approx\tfrac12(5.13+19.5)\approx12.3\ \text{mW}. \]
+\ans{$P_{avg}\approx12.3$ mW（依上述路徑估算；確切值依電路節點接法略有出入）。}
+
+%---------------------------------------------------------------
+\begin{minipage}{0.62\linewidth}
+\prob{TTL 電路當 $V_i=V_L$ 時輸出端等效電路如圖 P11.4，其中 $Q_2$、$D$ 導通而 $Q_1$、$Q_3$ 不導通；輸出端外接負載 $R_L=1$ k$\Omega$。(1) 求輸出電流 $I_o$。(2) 求此電路消耗的功率。（提示：$Q_2$ 處於 saturation）}
+\end{minipage}\hfill
+\begin{minipage}{0.35\linewidth}
+\figc{fig/P11_4.png}{0.96\linewidth}{圖 P11.4}
+\end{minipage}
+
+\sol 輸出高電位由圖騰柱上臂 $Q_2$（射極隨耦）串二極體 $D$ 提供：
+\[ V_o=V_{CC}-V_{CE(sat),Q2}-V_{D}=5-0.2-0.7=4.1\ \text{V}. \]
+\textbf{(1)} 流入負載的輸出電流
+\[ I_o=\frac{V_o}{R_L}=\frac{4.1}{1\text{k}}=4.1\ \text{mA}. \]
+\textbf{(2)} 此電流由 $V_{CC}$ 經 $R_4(130\,\Omega)$、$Q_2$、$D$ 供給，故電源消耗
+\[ P\approx V_{CC}\,I_o=5\times4.1\text{m}=20.5\ \text{mW}. \]
+\ans{(1) $I_o\approx4.1$ mA。\;(2) $P\approx20.5$ mW。}
+
+%---------------------------------------------------------------
+\prob{承上題，但 $R_L=10$ k$\Omega$。}
+\sol 輸出高電位仍 $V_o\approx4.1$ V：
+\[ I_o=\frac{4.1}{10\text{k}}=0.41\ \text{mA},\qquad P\approx V_{CC}I_o=5\times0.41\text{m}=2.05\ \text{mW}. \]
+\ans{$I_o\approx0.41$ mA，$P\approx2.05$ mW。（負載越輕，輸出電流與耗電越小。）}
+
+%---------------------------------------------------------------
+\begin{minipage}{0.62\linewidth}
+\prob{圖 P11.5 的 BiCMOS 電路，$V_{DD}=5$ V，$Q_1$、$Q_2$ 的 $V_{BE(on)}=0.5$ V、$\beta=100$。輸出端不接負載、不計各寄生電容 $C$，求此電路的 $V_L$、$V_H$ 並說明原因。}
+\end{minipage}\hfill
+\begin{minipage}{0.35\linewidth}
+\figc{fig/P11_5.png}{0.92\linewidth}{圖 P11.5}
+\end{minipage}
+
+\sol 輸出級兩顆 npn（$Q_1$ 上拉、$Q_2$ 下拉）皆為射極隨耦器，只能輸出到一個 $V_{BE}$ 之內：
+\[ V_H=V_{DD}-V_{BE(on)}=5-0.5=4.5\ \text{V},\qquad V_L=V_{BE(on)}=0.5\ \text{V}. \]
+\textbf{原因：}$V_i=V_L$ 時 $Q_p$ 導通供 $Q_1$ 基極電流，$Q_1$ 把 $V_o$ 拉高；但當 $V_o$ 升到 $V_{DD}-V_{BE}$ 時 $Q_1$ 之 $V_{BE}$ 不足而截止，故 $V_H=V_{DD}-V_{BE}$。同理 $V_i=V_H$ 時 $Q_2$ 把 $V_o$ 拉低，降到 $V_{BE}$ 時 $Q_2$ 截止，故 $V_L=V_{BE}$。輸出因此\textbf{非全擺幅}。
+\ans{$V_H=4.5$ V、$V_L=0.5$ V；因輸出 npn 為射極隨耦器，各損失一個 $V_{BE(on)}$。}
+
+%---------------------------------------------------------------
+\begin{minipage}{0.64\linewidth}
+\prob{承上題，圖 P11.6 是 $V_i=V_L$ 時的等效電路。$C=10$ pF、$R_{ON}=100\ \Omega$。求 $V_o$ 由 $V_L$ 充電至 $V_H$ 所需的時間。（提示：充電時 $Q_1$ 的 $V_{BE}=0.7$ V）}
+\end{minipage}\hfill
+\begin{minipage}{0.33\linewidth}
+\figc{fig/P11_6.png}{0.62\linewidth}{圖 P11.6}
+\end{minipage}
+
+\sol $Q_1$ 為射極隨耦器，基極電流經 $R_{ON}$ 由 $V_{DD}$ 供給，而對電容充電的射極電流 $=(\beta+1)\times$ 基極電流。故電容所見之等效電阻
+\[ R_{eq}=\frac{R_{ON}}{\beta+1}=\frac{100}{101}\approx0.99\ \Omega,\qquad
+   \tau=R_{eq}C=\frac{R_{ON}C}{\beta+1}=\frac{100\times10\text{p}}{101}\approx9.9\ \text{ps}. \]
+\note{以一階 $RC$ 充電近似，$Q_1$ 提供 $(\beta+1)$ 倍電流}
+$V_o$ 由 $V_L$ 充向 $V_{DD}-V_{BE}$，充至 $V_H$（約終值）所需時間約為數個 $\tau$：
+\[ t\approx 3\tau\approx 3\times9.9\text{ps}\approx30\ \text{ps}. \]
+\ans{等效時間常數 $\tau=R_{ON}C/(\beta+1)\approx9.9$ ps，充至 $V_H$ 約 $\sim30$ ps——比純 $R_{ON}C=1$ ns 快約 $(\beta+1)$ 倍，正是 BiCMOS 速度優勢所在。}
+
+%---------------------------------------------------------------
+\begin{minipage}{0.64\linewidth}
+\prob{圖 P11.7 是題 8 的 BiCMOS 電路在 $V_i=V_H$ 時的等效電路。$C=10$ pF、$R_{ON}=100\ \Omega$。求 $V_o$ 由 $V_H$ 降至 $V_L$ 所需的時間。（提示：放電時 $Q_2$ 的 $V_{BE}=0.7$ V）}
+\end{minipage}\hfill
+\begin{minipage}{0.33\linewidth}
+\figc{fig/P11_7.png}{0.78\linewidth}{圖 P11.7}
+\end{minipage}
+
+\sol 與題 9 對稱：下拉 npn $Q_2$ 之基極電流經 $R_{ON}$ 提供，放電（集極）電流為其 $(\beta+1)$ 倍，等效時間常數
+\[ \tau=\frac{R_{ON}C}{\beta+1}=\frac{100\times10\text{p}}{101}\approx9.9\ \text{ps},\qquad
+   t\approx3\tau\approx30\ \text{ps}. \]
+\ans{$\tau\approx9.9$ ps，放電至 $V_L$ 約 $\sim30$ ps（同樣被 BJT 電流增益加速約 $(\beta+1)$ 倍）。}
+
+\end{document}

@@ -1,0 +1,300 @@
+\documentclass[12pt]{article}
+\usepackage{eedu}
+\renewcommand{\leftmark}{第 12 章\quad 差動及多級放大器}
+\newcommand{\note}[1]{\par\smallskip\noindent{\small\itshape\color{maincol}（說明：#1）}\par}
+
+\begin{document}
+
+\begin{center}
+{\Huge\bfseries\color{maincol} 第 12 章\quad 差動及多級放大器}\\[0.4em]
+{\large\color{keycol} 重點整理 \;\&\; 章末習題詳解}
+\end{center}
+\vspace{0.4em}\hrule\vspace{1em}
+
+%=====================================================================
+\section*{一、重點整理}
+\markboth{第 12 章\quad 差動及多級放大器}{}
+\addcontentsline{toc}{section}{重點整理}
+
+\begin{keybox}[12.1--12.2\ \ BJT 差動放大器與信號分析（圖 P12.1）]
+兩顆對稱 BJT 共用一個尾電流源 $I_A$，放大兩輸入之差 $V_d=V_1-V_2$。\\
+\textbf{大信號}（$V_T=25$ mV）：
+\begin{formulabox}
+\[ I_{C1}=\frac{I_A}{1+e^{-V_d/V_T}}\;(12.5),\qquad
+   I_{C2}=\frac{I_A}{1+e^{\,V_d/V_T}}\;(12.6),\qquad I_{C1}+I_{C2}=I_A \]
+\end{formulabox}
+\textbf{小信號}（轉導 $G_m$、差動增益 $A_d$、輸入電阻 $R_{in}$）：
+\begin{formulabox}
+\[ G_m=\frac{I_A}{4V_T}\;(12.8),\quad
+   A_d=-2G_mR_C=-\frac{I_AR_C}{2V_T}\;(12.13),\quad
+   R_{in}=\frac{4\beta V_T}{I_A}\;(12.16) \]
+\end{formulabox}
+單端輸出增益為 $\mp G_mR_C$（$V_{o1}$ 取負、$V_{o2}$ 取正），雙端為 $-2G_mR_C$。
+\end{keybox}
+
+\begin{keybox}[同模增益與 CMRR]
+共模輸入 $V_{cm}=\dfrac{V_1+V_2}{2}$。電流源輸出電阻 $R_A$ 有限、且兩臂負載失配 $\Delta R_C$ 時：
+\begin{formulabox}
+\[ A_{cm}=-\frac{\Delta R_C}{2R_A}\;(12.21),\qquad
+   \mathrm{CMRR}=\left|\frac{A_d}{A_{cm}}\right|\;(12.22) \]
+\end{formulabox}
+理想對稱（$\Delta R_C=0$ 或 $R_A\to\infty$）時 $A_{cm}=0$、CMRR$\to\infty$。
+\end{keybox}
+
+\begin{keybox}[12.3\ \ 電流源／電流鏡]
+\begin{itemize}[leftmargin=2.0em,itemsep=2pt]
+  \item \textbf{基本鏡（圖 P12.2）}：$I_{ref}=\dfrac{V_{CC}-0.7}{R_{ref}}$，
+        $I_o=\dfrac{I_{ref}}{1+2/\beta}$ (12.26)，輸出電阻 $R_o=r_o=\dfrac{V_A}{I_o}$ (12.31)。
+  \item \textbf{Wilson 鏡（圖 P12.3）}：$I_{ref}=\dfrac{V_{CC}-1.4}{R_{ref}}$，
+        $I_o=\dfrac{I_{ref}}{1+2/[\beta(\beta+1)]}$ (12.28)，$R_o=\dfrac{\beta}{2}r_o$ (12.37)——基極電流誤差極小、輸出電阻極高。
+  \item \textbf{Widlar 鏡（圖 P12.4）}：$Q_2$ 射極串 $R_E$，可得極小輸出電流：
+        \[ V_T\ln\frac{I_{ref}}{I_o}=I_oR_E\ \Rightarrow\ R_E=\frac{V_T}{I_o}\ln\frac{I_{ref}}{I_o}. \]
+  \item 電流變動：$\Delta I_o=\dfrac{\Delta V_o}{R_o}$ (12.30)。
+\end{itemize}
+\end{keybox}
+
+\begin{keybox}[12.4--12.6\ \ 主動負載／MOSFET 差動放大器／多級放大器]
+\textbf{主動負載（圖 P12.5）}：以電流鏡取代 $R_C$，得高電阻但低直流壓降，單端增益
+$A=2G_m\,(R_L\Vert r_{o2}\Vert r_{o4})$，$R_L\to\infty$ 時 $A=\dfrac{V_A}{2V_T}$。\\
+\textbf{MOSFET 差動放大器（圖 P12.6，}$I_D=k(V_{GS}-V_t)^2$\textbf{）}：
+\begin{formulabox}
+\[ G_m=\sqrt{\tfrac{kI_A}{2}}\;(12.44),\qquad A_d=-2G_mR_D\;(12.47) \]
+\end{formulabox}
+因 FET 之 $G_m$ 較 BJT 小，增益亦較小。\\
+\textbf{多級放大器（圖 P12.9）}：逐級串接，需考慮級間\textbf{負載效應}——前級輸出經 $R_o$ 與後級 $R_i$ 分壓。
+\end{keybox}
+
+\bigskip\hrule\vspace{0.6em}
+
+%=====================================================================
+\section*{二、章末習題詳解}
+\addcontentsline{toc}{section}{章末習題詳解}
+\noindent{\small\itshape 共同條件：$V_T=25$ mV；BJT $V_{BE(on)}=0.7$ V。}
+\medskip
+
+%---------------------------------------------------------------
+\prob{說明差動放大器的運作原理，並比較它與 CE 放大器的異同。}
+\sol \textbf{原理：}兩顆對稱電晶體共用尾電流源 $I_A$，僅放大兩輸入之差 $V_d=V_1-V_2$（差模），對兩輸入相同的部分（共模、雜訊、溫漂）幾乎不放大，故抗雜訊與漂移能力強。
+\begin{center}\small
+\begin{tabular}{p{2.6cm}|p{5.4cm}|p{5.4cm}}
+\toprule
+ & 相同處 & 相異處\\
+\midrule
+直流 & 皆需直流偏壓使 BJT 工作於主動區 & 差動級用尾電流源穩定偏壓、抑制共模與漂移\\
+交流增益 & 單端增益形式類似 $-g_mR_C$ & 差動級放大「差值」、具雙輸入與雙輸出、CMRR 高\\
+\bottomrule
+\end{tabular}
+\end{center}
+\ans{差動放大器只放大差模信號、抑制共模，是運算放大器（OP）的輸入級；CE 放大器為單端，無共模抑制能力。}
+
+%---------------------------------------------------------------
+\begin{minipage}{0.64\linewidth}
+\prob{圖 P12.1，$I_A=1$ mA。用 (12.5)(12.6) 估算 $I_{C1}$、$I_{C2}$。(1) $V_d=10$ mV；(2) $V_d=100$ mV；(3) $V_d=200$ mV。}
+\end{minipage}\hfill
+\begin{minipage}{0.33\linewidth}
+\figc{fig/P12_1.png}{0.86\linewidth}{圖 P12.1}
+\end{minipage}
+
+\sol $I_{C1}=\dfrac{1\,\text{mA}}{1+e^{-V_d/25\text{mV}}}$，$I_{C2}=I_A-I_{C1}$。
+\begin{itemize}[leftmargin=2.2em,itemsep=1pt]
+  \item \textbf{(1)} $e^{-0.4}=0.670$：$I_{C1}=\dfrac{1}{1.670}=0.599$ mA，$I_{C2}=0.401$ mA。
+  \item \textbf{(2)} $e^{-4}=0.0183$：$I_{C1}=\dfrac{1}{1.0183}=0.982$ mA，$I_{C2}=0.018$ mA。
+  \item \textbf{(3)} $e^{-8}=3.4\times10^{-4}$：$I_{C1}\approx1.000$ mA，$I_{C2}\approx0.3\ \mu$A。
+\end{itemize}
+\ans{(1) $0.599/0.401$ mA；(2) $0.982/0.018$ mA；(3) $\approx1$ mA$/\approx0$。$V_d$ 越大，電流越偏向一邊（$\ge100$ mV 幾乎全偏）。}
+
+%---------------------------------------------------------------
+\prob{圖 P12.1，$V_{CC}=12$ V、$R_C=10$ k$\Omega$、$I_A=1$ mA、$\beta=100$，求 $G_m$、$A_d$、$R_{in}$。}
+\sol
+\[ G_m=\frac{I_A}{4V_T}=\frac{1\text{m}}{4(25\text{m})}=0.01\ \text{S},\quad
+   A_d=-2G_mR_C=-2(0.01)(10\text{k})=-200, \]
+\[ R_{in}=\frac{4\beta V_T}{I_A}=\frac{4(100)(0.025)}{1\text{m}}=10\ \text{k}\Omega. \]
+\ans{$G_m=0.01$ S（10 mA/V）、$A_d=-200$、$R_{in}=10$ k$\Omega$。}
+
+%---------------------------------------------------------------
+\prob{圖 P12.1，$V_{CC}=10$ V、$R_C=5$ k$\Omega$、$I_A=2$ mA。求 $V_{o1}$、$V_{o2}$。
+\\(1) $V_1=10\text{mV}\sin\omega_1t$、$V_2=0$。\;(2) $V_1=10\text{mV}\sin\omega_1t$、$V_2=5\text{mV}\sin\omega_2t$（$\omega_2\neq\omega_1$）。}
+\sol 先求單端增益：$G_m=\dfrac{2\text{m}}{4(25\text{m})}=0.02$ S，單端 $A_{d1}=-G_mR_C=-0.02(5\text{k})=-100$，$A_{d2}=+100$。輸出 $V_{o1}=A_{d1}V_d$、$V_{o2}=A_{d2}V_d$，$V_d=V_1-V_2$。\\
+\textbf{(1)} $V_d=10\text{mV}\sin\omega_1t$：
+\[ V_{o1}=-100\,V_d=-1\,\sin\omega_1t\ \text{(V)},\qquad V_{o2}=+1\,\sin\omega_1t\ \text{(V)}. \]
+\textbf{(2)} $V_d=10\text{mV}\sin\omega_1t-5\text{mV}\sin\omega_2t$：
+\[ V_{o1}=-1\sin\omega_1t+0.5\sin\omega_2t\ \text{(V)},\quad
+   V_{o2}=+1\sin\omega_1t-0.5\sin\omega_2t\ \text{(V)}. \]
+\ans{以單端差動增益 $\mp100$ 乘上 $V_d$ 即得（理想電流源使共模增益$\approx0$）。}
+
+%---------------------------------------------------------------
+\prob{圖 P12.1，$I_A=2$ mA、電流源輸出電阻 $R_A=10$ M$\Omega$、$R_{C1}=10$ k$\Omega$、$R_{C2}=10.1$ k$\Omega$。求 (1) $A_{cm}$；(2) CMRR。}
+\sol $\Delta R_C=R_{C2}-R_{C1}=0.1$ k$\Omega$。
+\[ A_{cm}=-\frac{\Delta R_C}{2R_A}=-\frac{0.1\text{k}}{2(10\text{M})}=-5\times10^{-6}. \]
+$G_m=\dfrac{2\text{m}}{4(25\text{m})}=0.02$ S，$A_d=-2G_mR_C\approx-2(0.02)(10\text{k})=-400$。
+\[ \mathrm{CMRR}=\left|\frac{A_d}{A_{cm}}\right|=\frac{400}{5\times10^{-6}}=8\times10^{7}\ (\approx158\ \text{dB}). \]
+\ans{$A_{cm}=-5\times10^{-6}$，CMRR$=8\times10^{7}$（約 158 dB）。}
+
+%---------------------------------------------------------------
+\begin{minipage}{0.64\linewidth}
+\prob{圖 P12.2，$Q_1$、$Q_2$ 相同，$\beta=100$、$V_A=200$ V、$V_{CC}=12$ V、$R_{ref}=10$ k$\Omega$。
+(1) 求 $I_o$ 精確值；(2) 求 $R_o$；(3) 輸出電壓變動 5 V 時，估 $\Delta I_o$。}
+\end{minipage}\hfill
+\begin{minipage}{0.33\linewidth}
+\figc{fig/P12_2.png}{0.72\linewidth}{圖 P12.2}
+\end{minipage}
+
+\sol
+\[ I_{ref}=\frac{V_{CC}-0.7}{R_{ref}}=\frac{11.3}{10\text{k}}=1.13\ \text{mA},\quad
+   I_o=\frac{I_{ref}}{1+2/\beta}=\frac{1.13}{1.02}=1.108\ \text{mA}, \]
+\[ R_o=\frac{V_A}{I_o}=\frac{200}{1.108\text{m}}=180.5\ \text{k}\Omega,\quad
+   \Delta I_o=\frac{\Delta V_o}{R_o}=\frac{5}{180.5\text{k}}=27.7\ \mu\text{A}. \]
+\ans{(1) $I_o=1.108$ mA；(2) $R_o=180.5$ k$\Omega$；(3) $\Delta I_o=27.7\ \mu$A。}
+
+%---------------------------------------------------------------
+\prob{重做題 6，但 $\beta=300$、$V_A=100$ V、$V_{CC}=15$ V、$R_{ref}=8$ k$\Omega$。}
+\sol
+\[ I_{ref}=\frac{15-0.7}{8\text{k}}=1.788\ \text{mA},\quad I_o=\frac{1.788}{1+2/300}=1.776\ \text{mA}, \]
+\[ R_o=\frac{100}{1.776\text{m}}=56.3\ \text{k}\Omega,\quad \Delta I_o=\frac{5}{56.3\text{k}}=88.8\ \mu\text{A}. \]
+\ans{$I_o=1.776$ mA、$R_o=56.3$ k$\Omega$、$\Delta I_o=88.8\ \mu$A。}
+
+%---------------------------------------------------------------
+\begin{minipage}{0.64\linewidth}
+\prob{圖 P12.3 的 Wilson 電流鏡，$\beta=100$、$V_A=200$ V、$V_{CC}=12$ V、$R_{ref}=10$ k$\Omega$，重複 6(1)$\sim$(3)。}
+\end{minipage}\hfill
+\begin{minipage}{0.33\linewidth}
+\figc{fig/P12_3.png}{0.78\linewidth}{圖 P12.3（Wilson）}
+\end{minipage}
+
+\sol Wilson 參考支路有兩個 $V_{BE}$ 壓降：
+\[ I_{ref}=\frac{V_{CC}-1.4}{R_{ref}}=\frac{10.6}{10\text{k}}=1.06\ \text{mA},\quad
+   I_o=\frac{I_{ref}}{1+\frac{2}{\beta(\beta+1)}}\approx1.06\ \text{mA}\ (\text{誤差}\approx0.02\%). \]
+Wilson 輸出電阻提高至 $R_o=\dfrac{\beta}{2}r_o$：
+\[ R_o=\frac{\beta}{2}\cdot\frac{V_A}{I_o}=50\times\frac{200}{1.06\text{m}}\approx9.43\ \text{M}\Omega,\quad
+   \Delta I_o=\frac{5}{9.43\text{M}}\approx0.53\ \mu\text{A}. \]
+\ans{(1) $I_o\approx1.06$ mA；(2) $R_o\approx9.43$ M$\Omega$；(3) $\Delta I_o\approx0.53\ \mu$A——較基本鏡穩定極多。}
+
+%---------------------------------------------------------------
+\prob{重做題 8（Wilson），但 $\beta=300$、$V_A=100$ V、$V_{CC}=15$ V、$R_{ref}=8$ k$\Omega$。}
+\sol
+\[ I_{ref}=\frac{15-1.4}{8\text{k}}=1.7\ \text{mA},\quad I_o\approx1.7\ \text{mA}, \]
+\[ R_o=\frac{\beta}{2}\cdot\frac{V_A}{I_o}=150\times\frac{100}{1.7\text{m}}\approx8.82\ \text{M}\Omega,\quad
+   \Delta I_o=\frac{5}{8.82\text{M}}\approx0.57\ \mu\text{A}. \]
+\ans{$I_o\approx1.7$ mA、$R_o\approx8.82$ M$\Omega$、$\Delta I_o\approx0.57\ \mu$A。}
+
+%---------------------------------------------------------------
+\prob{$V_{CC}=10$ V，設計圖 P12.4 的 Widlar 電流鏡使 $I_{ref}=1$ mA、$I_o=4\ \mu$A。}
+\note{圖 P12.4 為 Widlar 鏡：$Q_1$ 二極體接法傳給 $Q_2$，$Q_2$ 射極串電阻 $R_E$}
+\sol
+\[ R_{ref}=\frac{V_{CC}-0.7}{I_{ref}}=\frac{9.3}{1\text{m}}=9.3\ \text{k}\Omega, \]
+\[ R_E=\frac{V_T}{I_o}\ln\frac{I_{ref}}{I_o}=\frac{0.025}{4\,\mu}\ln\frac{1\text{m}}{4\,\mu}
+   =6250\times\ln(250)=6250\times5.521\approx34.5\ \text{k}\Omega. \]
+\ans{$R_{ref}=9.3$ k$\Omega$，$R_E\approx34.5$ k$\Omega$。}
+
+%---------------------------------------------------------------
+\prob{重做題 10，但 $V_{CC}=12$ V、$I_{ref}=2$ mA、$I_o=10\ \mu$A。}
+\sol
+\[ R_{ref}=\frac{12-0.7}{2\text{m}}=5.65\ \text{k}\Omega,\quad
+   R_E=\frac{0.025}{10\,\mu}\ln\frac{2\text{m}}{10\,\mu}=2500\times\ln(200)=2500\times5.298\approx13.2\ \text{k}\Omega. \]
+\ans{$R_{ref}=5.65$ k$\Omega$，$R_E\approx13.2$ k$\Omega$。}
+
+%---------------------------------------------------------------
+\begin{minipage}{0.62\linewidth}
+\prob{圖 P12.5 以電流源作主動負載。(1) 說明主動負載取代電阻的優缺點。(2) 若 $I_A=10$ mA、四顆電晶體 $V_A=200$ V，計算 $R_L\to\infty$ 時的增益。}
+\end{minipage}\hfill
+\begin{minipage}{0.35\linewidth}
+\figc{fig/P12_5.png}{0.96\linewidth}{圖 P12.5}
+\end{minipage}
+
+\sol
+\textbf{(1) 優點：}電流源等效電阻極大 $\Rightarrow$ 增益高；直流壓降小 $\Rightarrow$ 電晶體不易離開主動區、適合低電壓 IC；可把雙端轉單端輸出。\textbf{缺點：}增益對元件參數敏感、輸出阻抗高需後級緩衝、頻寬受限。\\
+\textbf{(2)} $G_m=\dfrac{I_A}{4V_T}=\dfrac{10\text{m}}{0.1}=0.1$ S，$r_o=\dfrac{V_A}{I_A/2}=\dfrac{200}{5\text{m}}=40$ k$\Omega$，$r_{o2}\Vert r_{o4}=20$ k$\Omega$。
+\[ A=2G_m(r_{o2}\Vert r_{o4})=2(0.1)(20\text{k})=4000\quad\Big(=\frac{V_A}{2V_T}=\frac{200}{0.05}\Big). \]
+\ans{(2) 開路增益 $A=4000$。}
+
+%---------------------------------------------------------------
+\prob{承上題，若 $V_d=2\text{mV}\sin\omega t$、$R_L=10$ k$\Omega$，求 $V_o$。}
+\sol 接入有限負載後 $A=2G_m(R_L\Vert r_{o2}\Vert r_{o4})$，$R_L\Vert20\text{k}=10\text{k}\Vert20\text{k}=6.67$ k$\Omega$：
+\[ A=2(0.1)(6.67\text{k})=1333,\qquad V_o=A\,V_d=1333\times2\text{mV}\approx2.67\,\sin\omega t\ \text{(V)}. \]
+\ans{$V_o\approx2.67\sin\omega t$ V。}
+
+%---------------------------------------------------------------
+\begin{minipage}{0.64\linewidth}
+\prob{圖 P12.6 的 MOSFET 差動放大器，$V_t=2$ V、$k=1\ \text{mA/V}^2$。
+(1) $I_A=1$ mA、$R_D=5$ k$\Omega$，求 $G_m$、$A_d$。(2) $I_A=4$ mA、$R_D=7$ k$\Omega$，求 $G_m$、$A_d$。}
+\end{minipage}\hfill
+\begin{minipage}{0.33\linewidth}
+\figc{fig/P12_6.png}{0.92\linewidth}{圖 P12.6}
+\end{minipage}
+
+\sol $G_m=\sqrt{\dfrac{kI_A}{2}}$，$A_d=-2G_mR_D$。\\
+\textbf{(1)} $G_m=\sqrt{\dfrac{(1\text{m})(1\text{m})}{2}}=7.07\times10^{-4}$ S，$A_d=-2(7.07\text{m})(5\text{k})=-7.07$。\\
+\textbf{(2)} $G_m=\sqrt{\dfrac{(1\text{m})(4\text{m})}{2}}=1.414\times10^{-3}$ S，$A_d=-2(1.414\text{m})(7\text{k})=-19.8$。
+\ans{(1) $G_m=0.707$ mA/V、$A_d=-7.07$；(2) $G_m=1.414$ mA/V、$A_d=-19.8$。}
+
+%---------------------------------------------------------------
+\begin{minipage}{0.64\linewidth}
+\prob{圖 P12.7 中 $V_{DD}=12$ V、$V_t=2$ V、$k=1\ \text{mA/V}^2$。設計 $R_{ref}$ 使 $I_{ref}=2$ mA。}
+\end{minipage}\hfill
+\begin{minipage}{0.33\linewidth}
+\figc{fig/P12_7.png}{0.78\linewidth}{圖 P12.7}
+\end{minipage}
+
+\sol 二極體接法 MOSFET：$I_{ref}=k(V_{GS}-V_t)^2\Rightarrow 2\text{m}=1\text{m}(V_{GS}-2)^2\Rightarrow V_{GS}=2+\sqrt2=3.41$ V。
+P12.7 之參考支路為兩顆 MOSFET 疊接（$V_{GS}$ 各一），故
+\[ R_{ref}=\frac{V_{DD}-2V_{GS}}{I_{ref}}=\frac{12-6.83}{2\text{m}}\approx2.59\ \text{k}\Omega. \]
+\ans{$R_{ref}\approx2.59$ k$\Omega$。}
+
+%---------------------------------------------------------------
+\prob{圖 P12.7 的 MOSFET Wilson 鏡，$V_{DD}=12$ V、$V_t=2$ V、$k=1\ \text{mA/V}^2$、$V_A=100$ V。
+(1) 設計 $R_{ref}$ 使 $I_o=1$ mA；(2) 求 $R_o$；(3) $\Delta V_o=2$ V 時估 $\Delta I_o$。}
+\sol MOSFET 無閘極電流，$I_o=I_{ref}=1$ mA。$V_{GS}=2+\sqrt{I_{ref}/k}=2+1=3$ V。\\
+\textbf{(1)} $R_{ref}=\dfrac{V_{DD}-2V_{GS}}{I_{ref}}=\dfrac{12-6}{1\text{m}}=6$ k$\Omega$。\\
+\textbf{(2)} MOSFET Wilson／疊接輸出電阻 $R_o\approx g_m r_o^2$，其中 $g_m=2k(V_{GS}-V_t)=2(1\text{m})(1)=2$ mA/V，$r_o=\dfrac{V_A}{I_o}=\dfrac{100}{1\text{m}}=100$ k$\Omega$：
+\[ R_o\approx g_m r_o^2=(2\text{m})(100\text{k})^2=2\times10^{7}=20\ \text{M}\Omega. \]
+\textbf{(3)} $\Delta I_o=\dfrac{\Delta V_o}{R_o}=\dfrac{2}{20\text{M}}=0.1\ \mu$A。
+\ans{(1) $R_{ref}=6$ k$\Omega$；(2) $R_o\approx20$ M$\Omega$；(3) $\Delta I_o\approx0.1\ \mu$A。}
+
+%---------------------------------------------------------------
+\begin{minipage}{0.64\linewidth}
+\prob{圖 P12.8 中 $I_A=1$ mA、$R_L=10$ k$\Omega$、$k=1\ \text{mA/V}^2$、$V_A=100$ V，求差動增益 $A_d$。}
+\end{minipage}\hfill
+\begin{minipage}{0.33\linewidth}
+\figc{fig/P12_8.png}{0.84\linewidth}{圖 P12.8}
+\end{minipage}
+
+\sol MOSFET 差動放大器配主動負載，單端增益 $A_d=2G_m(R_L\Vert r_{o2}\Vert r_{o4})$。
+\[ G_m=\sqrt{\tfrac{kI_A}{2}}=\sqrt{\tfrac{(1\text{m})(1\text{m})}{2}}=0.707\ \text{mA/V},\quad
+   r_o=\frac{V_A}{I_A/2}=\frac{100}{0.5\text{m}}=200\ \text{k}\Omega. \]
+$r_{o2}\Vert r_{o4}=100$ k$\Omega$，$R_L\Vert100\text{k}=10\text{k}\Vert100\text{k}=9.09$ k$\Omega$：
+\[ A_d=2(0.707\text{m})(9.09\text{k})\approx12.9. \]
+\ans{$A_d\approx12.9$（受 $R_L=10$ k$\Omega$ 主導；若 $R_L\to\infty$ 則 $A_d=g_mr_o/... $ 大得多）。}
+
+%---------------------------------------------------------------
+\begin{minipage}{0.60\linewidth}
+\prob{圖 P12.9 多級放大器：$A_1$（$R_{i1}=20$ k、$A_{v1}=-100$、$R_{o1}=1$ k）、$A_2$（$R_{i2}=10$ k、$A_{v2}=-200$、$R_{o2}=2$ k）、$A_3$（$R_{i3}=100$ k、$A_{v3}=0.9$、$R_{o3}=60\ \Omega$）；$R_S=1$ k、$R_L=100\ \Omega$、$V_s=1\text{mV}\sin\omega t$。求 (1) $V_{o1}$；(2) $V_{o2}$；(3) $V_o$。}
+\end{minipage}\hfill
+\begin{minipage}{0.37\linewidth}
+\figc{fig/P12_9.png}{0.98\linewidth}{圖 P12.9}
+\end{minipage}
+
+\sol 逐級含負載效應（分壓）。先求 $A_1$ 輸入：$V_{i1}=V_s\dfrac{R_{i1}}{R_S+R_{i1}}=1\text{mV}\cdot\dfrac{20}{21}=0.952$ mV。\\
+\textbf{(1)} $A_1$ 輸出被 $A_2$ 負載：
+\[ V_{o1}=A_{v1}V_{i1}\frac{R_{i2}}{R_{o1}+R_{i2}}=(-100)(0.952\text{m})\frac{10}{11}\approx-86.6\ \text{mV}. \]
+\textbf{(2)} $A_2$ 輸出被 $A_3$ 負載（$V_{i2}=V_{o1}$）：
+\[ V_{o2}=A_{v2}V_{o1}\frac{R_{i3}}{R_{o2}+R_{i3}}=(-200)(-86.6\text{m})\frac{100}{102}\approx16.98\ \text{V}. \]
+\textbf{(3)} $A_3$（射極隨耦）輸出被 $R_L$ 負載：
+\[ V_o=A_{v3}V_{o2}\frac{R_L}{R_{o3}+R_L}=(0.9)(16.98)\frac{100}{160}\approx9.55\ \text{V}. \]
+\ans{$V_{o1}\approx-86.6$ mV、$V_{o2}\approx16.98$ V、$V_o\approx9.55$ V（皆 $\times\sin\omega t$）。}
+
+%---------------------------------------------------------------
+\begin{minipage}{0.60\linewidth}
+\prob{圖 P12.10 是 CC 放大器（射極隨耦器），$Q$ 的 B 極偏壓 $V_B=5$ V、$R_L=2$ k$\Omega$、供電 $\pm12$ V。輸出最大擺幅 $\pm4$ V，設計 $R_E$ 以防止 $Q$ 進入截止。}
+\end{minipage}\hfill
+\begin{minipage}{0.37\linewidth}
+\figc{fig/P12_10.png}{0.96\linewidth}{圖 P12.10}
+\end{minipage}
+
+\sol 靜態射極電壓 $V_E=V_B-0.7=4.3$ V。輸出經耦合電容接 $R_L$（交流負載），瞬時射極電流
+\[ i_E=\underbrace{\frac{V_E+v_o+12}{R_E}}_{\text{經 }R_E}+\underbrace{\frac{v_o}{R_L}}_{\text{經 }R_L}. \]
+最易截止在負峰 $v_o=-4$ V，要求 $i_E\ge0$：
+\[ \frac{4.3-4+12}{R_E}\ge\frac{4}{R_L}\ \Rightarrow\ \frac{12.3}{R_E}\ge\frac{4}{2\text{k}}
+   \ \Rightarrow\ R_E\le\frac{12.3\times2\text{k}}{4}=6.15\ \text{k}\Omega. \]
+\ans{取 $R_E\le6.15$ k$\Omega$（例如 $R_E=6$ k$\Omega$），即可在 $\pm4$ V 擺幅下避免 $Q$ 截止。}
+
+\end{document}

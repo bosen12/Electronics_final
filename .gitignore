@@ -1,0 +1,19 @@
+# LaTeX auxiliary files
+*.aux
+*.log
+*.out
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+*.toc
+*.xdv
+
+# Work directory (rendered pages, temp crops)
+work/
+
+# Original scanned PDFs (too large for GitHub)
+C 10 1.pdf
+C 10 2.pdf
+C 11.pdf
+C 12 1.pdf
+C12 2.pdf

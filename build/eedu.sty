@@ -1,0 +1,66 @@
+% eedu.sty — 共用樣式：繁體中文電子學詳解
+\ProvidesPackage{eedu}
+
+\usepackage{fontspec}
+\usepackage{xeCJK}
+\setCJKmainfont{Microsoft JhengHei}
+\setCJKsansfont{Microsoft JhengHei}
+\setmainfont{Times New Roman}
+
+\usepackage{amsmath,amssymb}
+\usepackage{geometry}
+\geometry{a4paper,margin=2.3cm}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{enumitem}
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\tcbuselibrary{skins,breakable}
+\usepackage{titlesec}
+\usepackage[bookmarks=true,colorlinks=true,linkcolor=blue!55!black,
+            urlcolor=blue,citecolor=blue]{hyperref}
+\usepackage{fancyhdr}
+
+% ---- 色彩 ----
+\definecolor{maincol}{RGB}{18,84,156}
+\definecolor{keycol}{RGB}{31,119,180}
+\definecolor{solcol}{RGB}{0,128,96}
+\definecolor{lightbg}{RGB}{238,244,251}
+
+% ---- 標題樣式 ----
+\titleformat{\section}{\Large\bfseries\color{maincol}}{\thesection}{0.6em}{}
+\titleformat{\subsection}{\large\bfseries\color{keycol}}{\thesubsection}{0.6em}{}
+\titlespacing*{\section}{0pt}{1.4ex}{0.9ex}
+
+% ---- 頁首頁尾 ----
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\color{maincol}\bfseries 基礎電子學．詳解}
+\fancyhead[R]{\small\color{maincol}\leftmark}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.6pt}
+
+% ---- 重點整理盒 ----
+\newtcolorbox{keybox}[1][重點整理]{
+  enhanced, breakable, colback=lightbg, colframe=keycol,
+  fonttitle=\bfseries, title={#1}, left=2mm,right=2mm,top=1.2mm,bottom=1.2mm,
+  boxrule=0.8pt, arc=2mm}
+
+% ---- 公式盒 ----
+\newtcolorbox{formulabox}{
+  enhanced, colback=white, colframe=maincol!70,
+  left=2mm,right=2mm,top=1mm,bottom=1mm, boxrule=0.6pt, arc=1.5mm}
+
+% ---- 題目／詳解環境 ----
+\newcounter{prob}[section]
+\newcommand{\prob}[1]{\par\medskip\refstepcounter{prob}%
+  \noindent{\color{maincol}\bfseries 習題\,\arabic{prob}.}\hspace{0.4em}{\bfseries #1}\par\nopagebreak\smallskip}
+\newcommand{\sol}{\par\noindent{\color{solcol}\bfseries 【詳解】}\hspace{0.3em}}
+\newcommand{\ans}[1]{\par\smallskip\noindent\fbox{\parbox{0.96\linewidth}{\color{solcol}\bfseries 答：#1}}\par\medskip}
+
+% 圖片置中工具
+\newcommand{\figc}[3]{% file, width, caption
+  \begin{figure}[H]\centering\includegraphics[width=#2]{#1}\\[-0.5ex]
+  {\small\color{maincol}\bfseries #3}\end{figure}}

@@ -1,0 +1,278 @@
+\documentclass[12pt]{article}
+\usepackage{eedu}
+\renewcommand{\leftmark}{第 10 章\quad FET 數位電路}
+
+\begin{document}
+
+\begin{center}
+{\Huge\bfseries\color{maincol} 第 10 章\quad FET 數位電路}\\[0.4em]
+{\large\color{keycol} 重點整理 \;\&\; 章末習題詳解}
+\end{center}
+\vspace{0.5em}
+\hrule
+\vspace{1em}
+
+%=====================================================================
+\section*{一、重點整理}
+\markboth{第 10 章\quad FET 數位電路}{}
+\addcontentsline{toc}{section}{重點整理}
+
+\begin{keybox}[10.1\ \ 數位反相器與雜訊邊界]
+反相器（inverter）把邏輯 ``0''（低電位 $V_L$）與 ``1''（高電位 $V_H$）互換。
+由電壓轉換曲線（VTC）定義四個關鍵電壓：
+\begin{itemize}[leftmargin=2.2em,itemsep=1pt]
+  \item $V_{OH}$：正常高電位輸出電壓；\quad $V_{OL}$：正常低電位輸出電壓。
+  \item $V_{IL}$：可容許之最大低電位輸入電壓（VTC 斜率 $=-1$ 之低電位側點）。
+  \item $V_{IH}$：可容許之最小高電位輸入電壓（VTC 斜率 $=-1$ 之高電位側點）。
+\end{itemize}
+雜訊邊界（noise margin）愈大愈不易受雜訊干擾：
+\begin{formulabox}
+\[ NM_L = V_{IL}-V_{OL}\quad(10.1),\qquad NM_H = V_{OH}-V_{IH}\quad(10.2) \]
+\end{formulabox}
+\end{keybox}
+
+\begin{keybox}[10.1\ \ 傳輸延遲、功率與延遲-功率乘積]
+量測點取輸出擺幅中點 $\dfrac{V_{OH}+V_{OL}}{2}$。
+\begin{itemize}[leftmargin=2.2em,itemsep=1pt]
+  \item $t_{pHL}$：輸出由高降到中點的時間；\ $t_{pLH}$：輸出由低升到中點的時間。
+\end{itemize}
+\begin{formulabox}
+\[ t_p=\frac{t_{pHL}+t_{pLH}}{2}\quad(10.3),\qquad DP=t_p\cdot P\quad(10.4) \]
+\end{formulabox}
+功率損耗分為\textbf{靜態}（輸出恆定時的直流耗電）與\textbf{動態}（切換時對電容充放電的耗電）兩部分。
+\end{keybox}
+
+\begin{keybox}[10.2\ \ 簡單 FET 反相器（圖 P10.1）]
+NMOS 配一個汲極電阻 $R$ 接到 $V_{DD}$：
+\begin{itemize}[leftmargin=2.2em,itemsep=1pt]
+  \item $V_i=0$：FET 截止 $\Rightarrow V_o=V_{DD}$（高電位）。
+  \item $V_i=V_{DD}$：FET 導通工作於三極管區，$V_o=V_{DD}-I_DR$（低電位），且持續有直流電流 $\Rightarrow$ \textbf{靜態功率損耗}。
+\end{itemize}
+電晶體電流（本書定義 $k=\mu C_{ox}\frac{W}{L}$）：
+\begin{formulabox}
+\[ \text{飽和區：}\;I_D=\tfrac{1}{2}k(V_{GS}-V_t)^2,\qquad
+   \text{三極管區：}\;I_D=k\!\left[(V_{GS}-V_t)V_{DS}-\tfrac{1}{2}V_{DS}^2\right] \]
+\end{formulabox}
+缺點：$R$ 大則慢、$R$ 小則 $V_{OL}$ 高且耗電，速度與功率相互牽制。
+\end{keybox}
+
+\begin{keybox}[10.3--10.4\ \ CMOS 反相器（圖 P10.2）與其特性]
+以 PMOS（$Q_p$）取代電阻當作\textbf{主動負載}，$Q_p$、$Q_n$ 閘極同接 $V_i$，永遠一通一斷：
+\begin{formulabox}
+\begin{align*}
+&V_{OL}=0 \;(10.11),\qquad V_{OH}=V_{DD}\;(10.12)\\
+&V_{IL}=\frac{3V_{DD}+2V_t}{8}\;(10.9),\qquad V_{IH}=\frac{5V_{DD}-2V_t}{8}\;(10.10)\\
+&NM_L=NM_H=\frac{3V_{DD}+2V_t}{8}\;(10.13,10.14)\quad(\text{對稱})
+\end{align*}
+\end{formulabox}
+\textbf{動態功率}（每秒切換 $f$ 次）：
+\begin{formulabox}
+\[ q=CV_{DD}\;(10.15),\qquad P=fCV_{DD}^2\;(10.18) \]
+\end{formulabox}
+\textbf{傳輸延遲}（令 $a=\dfrac{V_t}{V_{DD}}$，$C=C_{out}+nC_{in}$）：
+\begin{formulabox}
+\begin{align*}
+&t_{pLH}=\frac{C}{k_pV_{DD}\,(1.75-3a+a^2)}\;(10.22),\quad
+ t_{pHL}=\frac{C}{k_nV_{DD}\,(1.75-3a+a^2)}\;(10.23)\\
+&t_p=\frac{C}{2V_{DD}(1.75-3a+a^2)}\left(\frac{1}{k_p}+\frac{1}{k_n}\right)\;(10.25)
+\end{align*}
+\end{formulabox}
+優點：靜態功率 $\approx 0$、輸出全擺幅（rail-to-rail）、雜訊邊界對稱。
+\end{keybox}
+
+\begin{keybox}[10.5\ \ CMOS 邏輯閘與應用]
+\begin{itemize}[leftmargin=2.2em,itemsep=1pt]
+  \item \textbf{NOR}（PMOS 串聯、NMOS 並聯）：$Y=\overline{A+B}$。
+  \item \textbf{NAND}（PMOS 並聯、NMOS 串聯，圖 P10.3）：$Y=\overline{A\cdot B}$。
+  \item \textbf{EXOR}：$Y=A\bar B+\bar A B$，亦可用傳輸閘（transmission gate）實現（圖 P10.4）。
+  \item \textbf{環型振盪器}（ring oscillator，圖 P10.5，$n$ 為奇數）：
+        \[ T=2n\,t_p\;(10.31),\qquad f=\frac{1}{2n\,t_p}\;(10.32) \]
+  \item 反相器亦可作\textbf{反相放大器}（偏壓在 $V_i=V_{DD}/2$）與\textbf{簡單比較器}。
+\end{itemize}
+\end{keybox}
+
+\bigskip
+\hrule
+\vspace{0.6em}
+
+%=====================================================================
+\section*{二、章末習題詳解}
+\addcontentsline{toc}{section}{章末習題詳解}
+
+%---------------------------------------------------------------
+\prob{說明 $V_{OL}$、$V_{OH}$、$V_{IL}$、$V_{IH}$ 的意義。}
+\sol 四者皆由反相器的電壓轉換曲線（VTC）定義：
+\begin{itemize}[leftmargin=2.2em,itemsep=1pt]
+  \item $V_{OH}$：輸出正常高電位電壓——輸入為邏輯 ``0'' 時的輸出電壓。
+  \item $V_{OL}$：輸出正常低電位電壓——輸入為邏輯 ``1'' 時的輸出電壓。
+  \item $V_{IL}$：可容許之最大低電位輸入電壓，即 VTC 上斜率 $=-1$ 的低電位側轉折點；輸入低於它仍被正確判讀為 ``0''。
+  \item $V_{IH}$：可容許之最小高電位輸入電壓，即 VTC 上斜率 $=-1$ 的高電位側轉折點；輸入高於它仍被正確判讀為 ``1''。
+\end{itemize}
+$V_{IL}$ 與 $V_{IH}$ 用來界定雜訊邊界 $NM_L=V_{IL}-V_{OL}$、$NM_H=V_{OH}-V_{IH}$。
+
+%---------------------------------------------------------------
+\prob{某反相器 $V_{OL}=0.2$ V、$V_{OH}=5$ V、$V_{IL}=2$ V、$V_{IH}=3$ V。
+\\(1) 求 $NM_L$ 與 $NM_H$。
+\\(2) 輸出由 $5$ V 降至 $2.6$ V 需 $8$ ns，由 $0.2$ V 升至 $2.6$ V 需 $9$ ns，求 $t_{pHL}$、$t_{pLH}$、$t_p$。}
+\sol
+\textbf{(1)} 直接代入定義：
+\[ NM_L=V_{IL}-V_{OL}=2-0.2=1.8\ \text{V},\qquad
+   NM_H=V_{OH}-V_{IH}=5-3=2\ \text{V}. \]
+\textbf{(2)} 量測中點電壓 $\dfrac{V_{OH}+V_{OL}}{2}=\dfrac{5+0.2}{2}=2.6$ V，恰為題目所給之 $2.6$ V。
+故輸出由高（$5$ V）降到中點 $=t_{pHL}=8$ ns；由低（$0.2$ V）升到中點 $=t_{pLH}=9$ ns。
+\[ t_p=\frac{t_{pHL}+t_{pLH}}{2}=\frac{8+9}{2}=8.5\ \text{ns}. \]
+\ans{$NM_L=1.8$ V，$NM_H=2$ V；$t_{pHL}=8$ ns，$t_{pLH}=9$ ns，$t_p=8.5$ ns。}
+
+%---------------------------------------------------------------
+\begin{minipage}{0.62\linewidth}
+\prob{圖 P10.1 簡單 FET 反相器，$V_{DD}=5$ V，$V_i=0$ 或 $5$ V；NMOS 的 $V_t=2$ V、$k=1\ \text{mA/V}^2$。
+\\(1) $R=10\ \text{k}\Omega$、$V_i=5$ V 時，求 $V_o$ 及整體電路消耗的功率。
+\\(2) $R=1\ \text{k}\Omega$，重做 (1)。}
+\end{minipage}\hfill
+\begin{minipage}{0.35\linewidth}
+\figc{fig/P10_1.png}{0.95\linewidth}{圖 P10.1}
+\end{minipage}
+
+\sol $V_i=5$ V $\Rightarrow V_{GS}=5$ V $>V_t$，FET 導通。輸出低，FET 在三極管區，且
+$I_D=\dfrac{V_{DD}-V_o}{R}$。代入三極管電流 $I_D=k\!\left[(V_{GS}-V_t)V_o-\tfrac12 V_o^2\right]$，$V_{GS}-V_t=3$ V。
+
+\textbf{(1) $R=10$ k$\Omega$：}（電流以 mA、電壓以 V）
+\[ 1\!\cdot\!\big(3V_o-0.5V_o^2\big)=\frac{5-V_o}{10}\ \Rightarrow\ V_o^2-6.2V_o+1=0
+   \ \Rightarrow\ V_o=0.166\ \text{V}. \]
+（取小根；$V_o<V_{GS}-V_t=3$ V 確在三極管區。）
+\[ I_D=\frac{5-0.166}{10}=0.483\ \text{mA},\qquad
+   P=V_{DD}I_D=5\times0.483=2.42\ \text{mW}. \]
+
+\textbf{(2) $R=1$ k$\Omega$：}
+\[ 1\!\cdot\!\big(3V_o-0.5V_o^2\big)=\frac{5-V_o}{1}\ \Rightarrow\ V_o^2-8V_o+10=0
+   \ \Rightarrow\ V_o=1.55\ \text{V}. \]
+\[ I_D=\frac{5-1.55}{1}=3.45\ \text{mA},\qquad P=5\times3.45=17.25\ \text{mW}. \]
+\ans{(1) $V_o\approx0.17$ V，$P\approx2.42$ mW。\quad (2) $V_o\approx1.55$ V，$P\approx17.25$ mW。\;（$R$ 小則 $V_{OL}$ 變高且更耗電。）}
+
+%---------------------------------------------------------------
+\prob{承題 3，輸出端等效電容 $C=10$ pF。$V_i$ 由 $5$ V 切換至 $0$ V 時 FET 截止，$V_o$ 經 $R$ 由 $0$ V 充至 $5$ V。
+\\(1) $R=10\ \text{k}\Omega$：估算 $V_o$ 由 $0$ V 充至 $2.5$ V 的時間。\;(2) $R=1\ \text{k}\Omega$，重做 (1)。}
+\sol FET 截止後為單純 $RC$ 充電：$V_o(t)=V_{DD}\big(1-e^{-t/RC}\big)$。令 $V_o=2.5=\dfrac{V_{DD}}{2}$：
+\[ 1-e^{-t/RC}=0.5\ \Rightarrow\ t=RC\ln 2=0.693\,RC. \]
+\textbf{(1)} $RC=10\text{k}\times10\text{p}=100$ ns $\Rightarrow t=0.693\times100=69.3$ ns。\\
+\textbf{(2)} $RC=1\text{k}\times10\text{p}=10$ ns $\Rightarrow t=0.693\times10=6.93$ ns。
+\ans{(1) $t\approx69.3$ ns；\;(2) $t\approx6.93$ ns。$R$ 小充電快，但由題 3 知其 $V_{OL}$ 較高——速度與電位品質的取捨。}
+
+%---------------------------------------------------------------
+\prob{用自己的觀點，比較圖 P10.1 簡單反相器與圖 P10.2 CMOS 反相器特性上的差異。}
+\sol
+\renewcommand{\arraystretch}{1.3}
+\begin{center}\small
+\begin{tabular}{>{\raggedright}p{3.0cm}|p{5.3cm}|p{5.3cm}}
+\toprule
+特性 & 簡單 FET 反相器（P10.1） & CMOS 反相器（P10.2）\\
+\midrule
+輸出低電位 $V_{OL}$ & $\neq0$，由 $R$ 與 FET 分壓決定 & $=0$（全擺幅）\\
+輸出高電位 $V_{OH}$ & $=V_{DD}$ & $=V_{DD}$\\
+靜態功率 & 輸出為低時有持續直流 $\Rightarrow$ 耗電 & $\approx0$（恆一通一斷）\\
+速度／功率 & $R$ 大慢、$R$ 小耗電，相互牽制 & 無此牽制，可兼顧\\
+雜訊邊界 & 不對稱、較差 & $NM_L=NM_H$ 對稱、較佳\\
+元件數／面積 & 少（1 FET\,+\,1 $R$） & 多（2 FET）\\
+\bottomrule
+\end{tabular}
+\end{center}
+\ans{CMOS 以主動負載換得全擺幅輸出、近乎零靜態功率與對稱雜訊邊界，代價是多一顆電晶體與面積，整體優於簡單 FET 反相器。}
+
+%---------------------------------------------------------------
+\begin{minipage}{0.62\linewidth}
+\prob{圖 P10.2 CMOS 反相器，$V_{DD}=5$ V，$V_i=0$ 或 $5$ V，$Q_p$：$V_t=-2$ V、$k_p=1\ \text{mA/V}^2$；$Q_n$：$V_t=2$ V、$k_n=1\ \text{mA/V}^2$。
+\\(1) 求 $V_{OL}$、$V_{OH}$、$V_{IL}$、$V_{IH}$。\;(2) 求 $NM_L$、$NM_H$。}
+\end{minipage}\hfill
+\begin{minipage}{0.35\linewidth}
+\figc{fig/P10_2.png}{0.92\linewidth}{圖 P10.2}
+\end{minipage}
+
+\sol 公式中 $V_t$ 取大小 $=2$ V。\\
+\textbf{(1)}
+\[ V_{OL}=0\ \text{V},\qquad V_{OH}=V_{DD}=5\ \text{V}, \]
+\[ V_{IL}=\frac{3V_{DD}+2V_t}{8}=\frac{15+4}{8}=2.375\ \text{V},\quad
+   V_{IH}=\frac{5V_{DD}-2V_t}{8}=\frac{25-4}{8}=2.625\ \text{V}. \]
+\textbf{(2)}
+\[ NM_L=V_{IL}-V_{OL}=2.375\ \text{V},\qquad NM_H=V_{OH}-V_{IH}=5-2.625=2.375\ \text{V}. \]
+\ans{$V_{OL}=0$、$V_{OH}=5$ V、$V_{IL}=2.375$ V、$V_{IH}=2.625$ V；$NM_L=NM_H=2.375$ V（對稱）。}
+
+%---------------------------------------------------------------
+\prob{承上題，輸出端等效電容 $C=10$ pF。
+\\(1) $V_i$ 由 $5$ V 切至 $0$ V 時，估算 $V_o$ 由 $0$ V 升至 $2.5$ V 的時間。
+\\(2) $V_i$ 由 $0$ V 切至 $5$ V 時，估算 $V_o$ 由 $5$ V 降至 $2.5$ V 的時間。}
+\sol 令 $a=\dfrac{V_t}{V_{DD}}=\dfrac{2}{5}=0.4$，故 $1.75-3a+a^2=1.75-1.2+0.16=0.71$。\\
+\textbf{(1)}（$Q_p$ 充電，求 $t_{pLH}$）
+\[ t_{pLH}=\frac{C}{k_pV_{DD}(1.75-3a+a^2)}
+   =\frac{10\times10^{-12}}{(1\times10^{-3})(5)(0.71)}=2.82\ \text{ns}. \]
+\textbf{(2)}（$Q_n$ 放電，求 $t_{pHL}$）因 $k_n=k_p$、$|V_t|$ 相同，
+\[ t_{pHL}=\frac{C}{k_nV_{DD}(1.75-3a+a^2)}=2.82\ \text{ns}. \]
+\ans{兩段時間皆約 $2.82$ ns（$t_{pLH}=t_{pHL}$，故 $t_p\approx2.82$ ns）。}
+
+%---------------------------------------------------------------
+\prob{題 6 中，CMOS 反相器輸出端寄生電容 $C_{out}=2$ pF，每個外接邏輯閘輸入電容 $C_{in}=1$ pF。
+若要求 $t_p\le10$ ns，它最多可外接幾個邏輯閘？}
+\sol 由題 6：$a=0.4$、$1.75-3a+a^2=0.71$、$k_n=k_p=1$ mA/V$^2$，故 $t_p=t_{pLH}=t_{pHL}$。
+\[ t_p=\frac{C}{k_pV_{DD}(0.71)}\le10\ \text{ns}
+   \ \Rightarrow\ C\le (1\times10^{-3})(5)(0.71)(10\times10^{-9})=35.5\ \text{pF}. \]
+由 $C=C_{out}+n\,C_{in}=2+n\le35.5\ \Rightarrow\ n\le33.5$。
+\ans{最多可外接 $n=33$ 個邏輯閘。}
+
+%---------------------------------------------------------------
+\begin{minipage}{0.60\linewidth}
+\prob{圖 P10.2（CMOS 反相器）與圖 P10.3（NAND）中，$V_{DD}=5$ V、FET 特性相同、輸出端 $Y$ 等效電容 $C$ 相等。
+\\(1) $Y$ 由 $0$ V 升至 $2.5$ V 的時間分別為 $T_1$（P10.2）、$T_2$（P10.3），討論不同 $(A,B)$ 下 $T_1$、$T_2$ 的關係。
+\\(2) $Y$ 由 $5$ V 降至 $2.5$ V 的時間分別為 $T_3$、$T_4$，討論其關係。}
+\end{minipage}\hfill
+\begin{minipage}{0.37\linewidth}
+\figc{fig/P10_3.png}{0.95\linewidth}{圖 P10.3（NAND）}
+\end{minipage}
+
+\sol 重點在「上拉 PMOS 並聯、下拉 NMOS 串聯」改變等效 $k$。\\
+\textbf{(1) 上升（PMOS 拉高）：} P10.2 僅一顆 PMOS；P10.3 為兩顆 PMOS \emph{並聯}。
+\begin{itemize}[leftmargin=2.2em,itemsep=1pt]
+  \item $A=B=0$：兩顆 PMOS 皆導通並聯 $\Rightarrow$ 等效 $k_p$ 加倍、電流加倍 $\Rightarrow T_2\approx\dfrac{T_1}{2}$。
+  \item 僅一輸入為 $0$：只有一顆 PMOS 導通 $\Rightarrow T_2\approx T_1$。
+\end{itemize}
+故 $T_2\le T_1$。\\
+\textbf{(2) 下降（NMOS 拉低）：} P10.2 一顆 NMOS；P10.3 為兩顆 NMOS \emph{串聯}（須 $A=B=1$ 才放電），等效 $k_n$ 減半、等效電阻加倍 $\Rightarrow T_4\approx2T_3$。
+\ans{(1) $A=B=0$ 時 $T_2\approx T_1/2$，僅一輸入為 0 時 $T_2\approx T_1$（即 $T_2\le T_1$）。\;(2) $T_4\approx2T_3$。}
+
+%---------------------------------------------------------------
+\begin{minipage}{0.60\linewidth}
+\prob{圖 P10.4 為傳輸閘（transmission gate）邏輯電路，FET 特性與題 6 相同。
+\\(1) 寫出此電路的邏輯功能。
+\\(2) 若 $A=B=5$ V、$\bar B=0$ V，輸出端等效電容 $C=10$ pF，計算 $Y$ 由 $0$ V 升至 $2.5$ V 的時間。}
+\end{minipage}\hfill
+\begin{minipage}{0.37\linewidth}
+\figc{fig/P10_4.png}{0.9\linewidth}{圖 P10.4}
+\end{minipage}
+
+\sol
+\textbf{(1)} 此為一組 CMOS 傳輸閘，由 $B$、$\bar B$ 控制：
+\begin{itemize}[leftmargin=2.2em,itemsep=1pt]
+  \item $B=1$（$\bar B=0$）：開關導通，$Y=A$。
+  \item $B=0$（$\bar B=1$）：開關斷開，$Y$ 浮接（高阻抗）。
+\end{itemize}
+即「受 $B$ 控制把 $A$ 傳到 $Y$」的可控開關。\\
+\textbf{(2)} $B=5$、$\bar B=0$ 時開關導通，輸入 $A=5$ V 對 $C$ 充電。其中 PMOS 的源極接 $A=5$ V、閘極接 $\bar B=0$ V，故 $V_{SG}=5=V_{DD}$，與題 6/7 中 CMOS 反相器之上拉 PMOS 完全相同。沿用 $a=0.4$、$1.75-3a+a^2=0.71$：
+\[ t_{pLH}=\frac{C}{k_pV_{DD}(0.71)}=\frac{10\times10^{-12}}{(1\times10^{-3})(5)(0.71)}\approx2.82\ \text{ns}. \]
+（NMOS 閘極接 $B=5$ V 亦提供額外充電電流，故實際略快於此值。）
+\ans{(1) 受 $B$ 控制的傳輸閘：$B=1$ 時 $Y=A$，$B=0$ 時 $Y$ 浮接。\;(2) $t\approx2.82$ ns（含 NMOS 之助則略短）。}
+
+%---------------------------------------------------------------
+\begin{minipage}{0.60\linewidth}
+\prob{圖 P10.5 的 ring oscillator，第一個反相器 $t_p=1.8$ ns，另外兩個皆 $t_p=2$ ns。
+\\(1) 求振盪頻率。\;(2) 輸出方波高、低準位所佔時間是否相同？}
+\end{minipage}\hfill
+\begin{minipage}{0.37\linewidth}
+\figc{fig/P10_5.png}{0.98\linewidth}{圖 P10.5}
+\end{minipage}
+
+\sol
+\textbf{(1)} 訊號繞環一圈的總延遲 $=1.8+2+2=5.8$ ns，一個完整週期需繞兩圈：
+\[ T=2(t_{p1}+t_{p2}+t_{p3})=2\times5.8=11.6\ \text{ns},\qquad
+   f=\frac{1}{T}=\frac{1}{11.6\,\text{ns}}\approx86.2\ \text{MHz}. \]
+\textbf{(2)} 任一節點由上升到下降（高準位期間）對應訊號繞環一圈 $=5.8$ ns；由下降到上升（低準位期間）對應再繞一圈 $=5.8$ ns。雖然各級延遲不同，但兩個方向繞的是同一個環、總延遲相同。
+\ans{(1) $T=11.6$ ns，$f\approx86.2$ MHz。\;(2) 相同——高、低準位各佔 $5.8$ ns（環路兩方向總延遲皆為 $5.8$ ns）。}
+
+\end{document}
