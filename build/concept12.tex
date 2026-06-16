@@ -1,0 +1,838 @@
+\documentclass[12pt]{article}
+\usepackage{eedu}
+\renewcommand{\leftmark}{第 12 章\quad 差動及多級放大器}
+
+\begin{document}
+
+\begin{center}
+{\Huge\bfseries\color{maincol} 第 12 章\quad 差動及多級放大器}\\[0.5em]
+{\large\color{keycol} 觀念筆記}
+\end{center}
+\vspace{0.4em}\hrule\vspace{1.2em}
+
+\noindent
+本章從差動放大器的基本想法出發，依序介紹信號分析、電流源／電流鏡、主動負載、
+MOSFET 差動放大器，以及多級放大器的設計方法。差動放大器是類比 IC 中最核心的
+構件——運算放大器（OP）的輸入級即為差動放大器，而電流鏡與主動負載則使 IC
+放大器能在晶片上實現極高增益。以下逐節展開詳細觀念說明。
+
+%====================================================================
+\section*{12.1\quad 差動放大器——基本想法}
+\addcontentsline{toc}{section}{12.1 差動放大器——基本想法}
+
+\begin{keybox}[為什麼需要差動放大器？]
+回顧先前學過的 CE、CB、CC 放大器，它們都有一個共同的缺點：\textbf{需要在輸入端和
+輸出端外加耦合電容（coupling capacitor）}，以隔離直流偏壓。耦合電容在低頻時阻抗
+很大，導致放大器的低頻響應不佳——無法放大直流信號。在許多應用中（例如溫度感
+測、儀器量測、控制系統），我們需要放大「從直流到高頻」的信號，因此需要一種不
+依賴耦合電容的放大器架構。
+
+\medskip
+\textbf{核心問題：}能否用兩顆電晶體組成放大器，避免外加耦合電容？
+
+差動放大器正是基於這個想法而誕生。
+\end{keybox}
+
+\subsection*{基本架構}
+
+\figc{fig/P12_1.png}{0.42\textwidth}{圖 12.1：BJT 差動放大器基本電路}
+
+如圖 12.1 所示，差動放大器由兩顆\textbf{特性完全相同}的 NPN 電晶體 $Q_1$、$Q_2$ 組成。
+兩者共用一個\textbf{尾電流源} $I_A$，分別接有集極負載電阻 $R_C$。兩個輸入信號 $V_1$、$V_2$
+分別加在 $Q_1$ 和 $Q_2$ 的基極。
+
+\subsection*{「瓜分電流」的核心概念}
+
+差動放大器的運作核心是\textbf{「瓜分電流」}的概念：
+\begin{itemize}[leftmargin=2em]
+  \item 尾電流 $I_A$ 是一個固定的電流源，滿足 $I_{C1} + I_{C2} = I_{E1} + I_{E2} \approx I_A$。
+  \item $I_A$ 不會改變，只是被兩顆電晶體「瓜分」——一方吃得多，另一方就吃得少。
+  \item \textbf{誰吃得多？}取決於 $V_1$ 和 $V_2$ 的大小：$V_1 > V_2$ 時 $Q_1$ 得到較多電流。
+\end{itemize}
+
+\begin{formulabox}
+\textbf{瓜分的關鍵公式}（假設 $Q_1$、$Q_2$ 完全對稱）：
+\[
+  I_{C1} + I_{C2} = I_A \qquad\text{（電流守恆）}
+\]
+$I_{C1}$ 和 $I_{C2}$ 的大小\textbf{不是}由 $V_1$、$V_2$ 各自決定，而是由它們之間的\textbf{差值}
+$V_d = V_1 - V_2$ 決定——這正是「差動」名稱的由來。
+\end{formulabox}
+
+\subsection*{運作原理——定性說明}
+
+\begin{enumerate}[leftmargin=2em]
+  \item \textbf{令 $V_1 = V_2$（兩輸入相同）：}由於對稱，$I_{C1} = I_{C2} = I_A/2$，兩側輸出電壓
+        相同，差動輸出為零。$\Rightarrow$ 共模信號不會被放大。
+  \item \textbf{令 $V_1 - V_2 = \Delta V$（正值）：}$Q_1$ 的 B-E 極電壓較大，$I_{C1} > I_A/2$；
+        $Q_2$ 的 B-E 極電壓較小，$I_{C2} < I_A/2$。\\
+        $\Rightarrow$ $V_{o1} = V_{CC} - I_{C1}R_C$ 下降；$V_{o2} = V_{CC} - I_{C2}R_C$ 上升。\\
+        $\Rightarrow$ 差動輸出 $V_o = V_{o1} - V_{o2}$ 產生變動，達成信號放大。
+  \item \textbf{若 $\Delta V$ 很大}（例如 $> 100$ mV），電流幾乎全偏到一側，另一側幾乎截止。
+\end{enumerate}
+
+\subsection*{差動放大器 vs.\ CE 放大器}
+
+\begin{center}\small
+\begin{tabular}{p{3.2cm}|p{5.0cm}|p{5.0cm}}
+\toprule
+ & \textbf{差動放大器} & \textbf{CE 放大器} \\
+\midrule
+輸入方式 & 雙輸入（$V_1$, $V_2$） & 單輸入 \\
+耦合電容 & \textbf{不需要} & 輸入與輸出端皆需要 \\
+直流放大 & 可以 & 不可以（受限耦合電容） \\
+抗雜訊 & 極佳（CMRR 高） & 無共模抑制能力 \\
+輸出方式 & 可單端或雙端 & 僅單端 \\
+應用 & OP 輸入級、IC 核心 & 分立式放大電路 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\medskip
+\noindent\textbf{差動放大器的優勢總結：}
+\begin{itemize}[leftmargin=2em,itemsep=1pt]
+  \item 不需耦合電容 $\Rightarrow$ 可從直流到高頻連續放大，是真正的「直流放大器」。
+  \item 只放大差模信號（$V_d = V_1 - V_2$），抑制共模（$V_{cm}$）與外部干擾。
+  \item 可選擇單端或雙端輸出，靈活性高。
+  \item 是運算放大器（OP）的基礎——OP 的輸入級就是差動放大器。
+\end{itemize}
+
+%====================================================================
+\section*{12.2\quad 差動放大器的信號分析}
+\addcontentsline{toc}{section}{12.2 信號分析}
+
+\subsection*{一、大信號分析}
+
+為了瞭解差動放大器的完整轉換特性，我們從兩顆 BJT 的指數特性出發。
+
+\begin{keybox}[大信號轉換特性推導]
+假設 $Q_1$、$Q_2$ 特性完全相同，皆工作在主動模式。令 $I_S$ 為反向飽和電流，
+$V_T$ 為熱電壓（$\approx 25$ mV），則 $Q_1$ 和 $Q_2$ 的 B-E 極電流分別為：
+\[
+  I_{C1} = I_S\, e^{V_{BE1}/V_T}, \qquad I_{C2} = I_S\, e^{V_{BE2}/V_T}
+\]
+比值為：
+\[
+  \frac{I_{C1}}{I_{C2}} = e^{(V_{BE1}-V_{BE2})/V_T} = e^{V_d/V_T}
+\]
+其中 $V_d = V_1 - V_2$ 為差動輸入電壓（因為兩射極共接，$V_{BE1}-V_{BE2}=V_1-V_2$）。
+
+結合 $I_{C1} + I_{C2} = I_A$，可以解出：
+\end{keybox}
+
+\begin{formulabox}
+\textbf{大信號電流分配公式：}
+\[
+  I_{C1} = \frac{I_A}{1 + e^{-V_d/V_T}} \tag{12.5}
+\]
+\[
+  I_{C2} = \frac{I_A}{1 + e^{\,V_d/V_T}} \tag{12.6}
+\]
+\end{formulabox}
+
+\noindent\textbf{物理直覺：}
+\begin{itemize}[leftmargin=2em,itemsep=2pt]
+  \item $V_d = 0$：$I_{C1} = I_{C2} = I_A/2$（完全對稱）。
+  \item $V_d > 0$（$V_1 > V_2$）：$I_{C1}$ 增加、$I_{C2}$ 減少。
+  \item $V_d \gg V_T$（例如 $> 100$ mV $\approx 4V_T$）：$e^{-V_d/V_T} \to 0$，故 $I_{C1} \to I_A$，$I_{C2} \to 0$。
+\end{itemize}
+
+\noindent\textbf{範例：}$I_A = 1$ mA，$V_d = 10$ mV 時，
+$e^{-0.4} = 0.670$，$I_{C1} = 1/(1+0.670) = 0.599$ mA，$I_{C2} = 0.401$ mA。\\
+若 $V_d = 100$ mV，$e^{-4} = 0.018$，$I_{C1} = 0.982$ mA，$I_{C2} = 0.018$ mA——幾乎全偏。\\[4pt]
+\textbf{結論：}差動放大器的線性範圍大約在 $|V_d| \lesssim V_T \approx 25$ mV 以內；超過此範圍，
+一側電流趨近 $I_A$，另一側趨近零，放大器進入飽和。
+
+%--------------------------------------------------------------------
+\subsection*{二、小信號分析——轉導 $G_m$ 的推導}
+
+\begin{keybox}[從轉導看差動放大器]
+在 CE 放大器中，核心參數是轉導 $g_m$（集極電流變動 $\Delta I_C$ 與 B-E 電壓變動
+$\Delta V_{BE}$ 之比）。同理，差動放大器的核心參數是\textbf{差動轉導} $G_m$。
+
+我們從 $I_{C1}$ 對 $V_d$ 的微分出發。由 (12.5) 式：
+\[
+  \frac{dI_{C1}}{dV_d} = \frac{I_A}{V_T}\cdot\frac{e^{-V_d/V_T}}{(1+e^{-V_d/V_T})^2}
+\]
+在 $V_d = 0$（靜態工作點）處，$e^0 = 1$，得：
+\end{keybox}
+
+\begin{formulabox}
+\textbf{差動轉導：}
+\[
+  G_m = \left.\frac{dI_{C1}}{dV_d}\right|_{V_d=0}
+      = \frac{I_A}{4V_T} \tag{12.8}
+\]
+\end{formulabox}
+
+\noindent
+$G_m$ 的意義：當差動輸入 $V_d$ 有一個小變動 $\Delta V_d$ 時，$I_{C1}$ 的變動量為
+$\Delta I_{C1} = G_m \cdot \Delta V_d$，而 $\Delta I_{C2} = -G_m \cdot \Delta V_d$（因為 $I_{C1}+I_{C2}=I_A$ 不變）。
+
+\medskip
+\noindent\textbf{與 CE 放大器 $g_m$ 的關係：}\\
+CE 放大器中，$g_m = I_C / V_T$。差動放大器中每顆 BJT 的靜態電流為 $I_A/2$，故
+$g_m = I_A/(2V_T)$。而差動轉導 $G_m = I_A/(4V_T) = g_m/2$。
+這是因為差動信號 $V_d$ 是被兩顆 BJT 均分的——每顆只「看到」$V_d/2$。
+
+%--------------------------------------------------------------------
+\subsection*{三、差動增益 $A_d$}
+
+\begin{keybox}[單端與雙端差動增益]
+知道 $G_m$ 之後，求增益就直接了。從圖 12.1 得輸出電壓：
+\[
+  V_{o1} = V_{CC} - I_{C1}R_C, \qquad V_{o2} = V_{CC} - I_{C2}R_C
+\]
+
+\textbf{（a）單端輸出：}只取 $V_{o1}$（或 $V_{o2}$）作為輸出。
+\[
+  \Delta V_{o1} = -\Delta I_{C1}\cdot R_C = -G_m \cdot \Delta V_d \cdot R_C
+\]
+\end{keybox}
+
+\begin{formulabox}
+\textbf{單端差動增益（single-ended differential gain）：}
+\[
+  A_{d1} = \frac{\Delta V_{o1}}{\Delta V_d} = -G_m R_C \tag{12.10}
+\]
+$V_{o2}$ 端的增益為 $A_{d2} = +G_m R_C$（相位相反）。
+\end{formulabox}
+
+\noindent\textbf{（b）雙端輸出：}以 $V_o = V_{o1} - V_{o2}$ 為輸出。
+\[
+  \Delta V_o = \Delta V_{o1} - \Delta V_{o2} = -G_m R_C \cdot \Delta V_d - (+G_m R_C \cdot \Delta V_d) = -2G_m R_C \cdot \Delta V_d
+\]
+
+\begin{formulabox}
+\textbf{雙端差動增益（double-ended differential gain）：}
+\[
+  A_d = \frac{\Delta V_o}{\Delta V_d} = -2G_m R_C = -\frac{I_A R_C}{2V_T} \tag{12.13}
+\]
+\end{formulabox}
+
+\noindent 雙端增益是單端的兩倍。使用雙端或單端取決於後級電路需求——雙端可得更高增益且
+保持差動特性，但在許多應用中需要轉為單端（見 12.4 節主動負載）。
+
+%--------------------------------------------------------------------
+\subsection*{四、輸入電阻 $R_{in}$}
+
+從圖 12.1(a) 的小信號等效電路來看，差動信號 $V_d$ 驅動 $Q_1$ 和 $Q_2$ 的 B-E 極。
+每顆 BJT 的基極看進去的小信號電阻為 $r_\pi = \beta / g_m = 2\beta V_T / I_A$。
+兩個 $r_\pi$ 串聯（因差動信號一正一負，等效為串聯）：
+
+\begin{formulabox}
+\textbf{差動輸入電阻：}
+\[
+  R_{in} = 2r_\pi = \frac{4\beta V_T}{I_A} \tag{12.16}
+\]
+\end{formulabox}
+
+\noindent\textbf{範例：}$I_A = 1$ mA、$\beta = 100$：
+$R_{in} = 4 \times 100 \times 0.025 / 0.001 = 10$ k$\Omega$。
+
+%--------------------------------------------------------------------
+\subsection*{五、共模增益 $A_{cm}$ 與 CMRR}
+
+\begin{keybox}[共模信號的定義與影響]
+在實際應用中，差動放大器的兩個輸入信號可以分解為：
+\begin{formulabox}
+\textbf{差動電壓與共模電壓：}
+\[
+  V_d = V_1 - V_2 \qquad\text{（差動電壓）}
+\]
+\[
+  V_{cm} = \frac{V_1 + V_2}{2} \qquad\text{（共模電壓）}
+\]
+\end{formulabox}
+
+理想差動放大器的電路結構完全對稱，$V_{cm}$ 使兩側電流等量變動，對差動輸出
+$V_o = V_{o1} - V_{o2}$ 沒有影響，所以理想的 $A_{cm} = 0$。
+
+\textbf{但實際上}，差動放大器永遠不可能完全對稱：
+\begin{itemize}[leftmargin=2em,itemsep=1pt]
+  \item 兩臂負載電阻 $R_{C1}$ 和 $R_{C2}$ 可能有微小失配 $\Delta R_C = R_{C1} - R_{C2}$。
+  \item 尾電流源的輸出電阻 $R_A$ 有限（不是真正的理想電流源）。
+\end{itemize}
+\end{keybox}
+
+\noindent\textbf{分析 $V_{cm}$ 的影響：}
+
+當 $V_{cm}$ 改變時，$Q_1$ 和 $Q_2$ 的 E 極電壓也隨之改變（因 $V_{BE} \approx 0.7$ V 不太變）。
+這使得尾電流 $I_A$ 受到 $V_{cm}$ 影響——因為電流源不是完美的，$R_A$ 有限。
+
+尾電流的變動為 $\Delta I_A = \Delta V_{cm} / R_A$（$R_A$ 為電流源的輸出電阻）。
+
+由於 $\Delta I_A$ 被兩臂均分，$\Delta I_{C1} = \Delta I_{C2} = \Delta I_A / 2 = \Delta V_{cm} / (2R_A)$。
+
+在 $R_{C1} = R_{C2}$ 的理想情況下：
+$\Delta V_{o1} = \Delta V_{o2}$，$\Delta V_o = 0$，$A_{cm} = 0$。
+
+但若 $\Delta R_C \neq 0$：
+\[
+  \Delta V_o = \Delta V_{o1} - \Delta V_{o2}
+            = -\frac{\Delta V_{cm}}{2R_A}(R_{C1}-R_{C2})
+            = -\frac{\Delta V_{cm}\cdot\Delta R_C}{2R_A}
+\]
+
+\begin{formulabox}
+\textbf{共模增益：}
+\[
+  A_{cm} = \frac{\Delta V_o}{\Delta V_{cm}} = -\frac{\Delta R_C}{2R_A} \tag{12.21}
+\]
+$A_{cm}$ 由兩個因素決定：(1) 負載失配 $\Delta R_C$（越小越好）；(2) 電流源輸出電阻
+$R_A$（越大越好）。
+\end{formulabox}
+
+\begin{formulabox}
+\textbf{共模拒斥比（Common-Mode Rejection Ratio, CMRR）：}
+\[
+  \text{CMRR} = \left|\frac{A_d}{A_{cm}}\right| \tag{12.22}
+\]
+CMRR 愈大，表示差動放大器對共模干擾的抑制能力愈強，是衡量差動放大器
+品質的重要指標。理想差動放大器 $A_{cm} = 0$，CMRR $\to \infty$。
+\end{formulabox}
+
+\noindent\textbf{提高 CMRR 的方法：}
+\begin{itemize}[leftmargin=2em,itemsep=2pt]
+  \item 使 $R_{C1}$ 和 $R_{C2}$ 盡量精確匹配（$\Delta R_C \to 0$）。
+  \item 使用高輸出電阻的電流源作為尾電流（$R_A$ 越大越好）。
+  \item 使用主動負載取代電阻負載（見 12.4 節）。
+\end{itemize}
+
+\noindent\textbf{範例：}$R_{C1} = 5$ k$\Omega$、$R_{C2} = 5.1$ k$\Omega$（$\Delta R_C = 0.1$ k$\Omega$），
+$R_A = 1$ M$\Omega$，$A_d = -100$：\\
+$A_{cm} = -0.1\text{k}/(2 \times 1\text{M}) = -5\times10^{-5}$，
+CMRR $= 100 / (5\times10^{-5}) = 2\times10^6$。
+
+%====================================================================
+\section*{12.3\quad 電流源／電流鏡}
+\addcontentsline{toc}{section}{12.3 電流源／電流鏡}
+
+差動放大器需要穩定的尾電流 $I_A$，電流源也廣泛用於主動負載和 IC 偏壓設計。
+本節介紹三種電流源：基本電流鏡、Wilson 電流鏡、Widlar 電流鏡。
+
+%--------------------------------------------------------------------
+\subsection*{一、基本電流鏡（Basic Current Mirror）}
+
+\figc{fig/P12_2.png}{0.35\textwidth}{圖 12.3：基本電流鏡}
+
+\begin{keybox}[基本電流鏡的原理]
+\textbf{結構：}取兩顆特性相同的 NPN BJT（$Q_1$、$Q_2$），$Q_1$ 接成二極體形式
+（C-B 短接），透過 $R_{ref}$ 與 $V_{CC}$ 建立參考電流 $I_{ref}$。$Q_2$ 的 B 極接
+$Q_1$ 的 B 極，使兩者共享相同的 $V_{BE}$。
+
+\medskip
+\textbf{原理：}由於 $Q_1$、$Q_2$ 特性相同且 $V_{BE1} = V_{BE2}$，所以
+$I_{C1} = I_{C2}$——$Q_2$ 的集極電流「鏡射」了 $Q_1$ 的集極電流，故名\textbf{電流鏡}。
+
+\medskip
+\textbf{參考電流：}
+\[
+  I_{ref} = \frac{V_{CC} - V_{BE}}{R_{ref}} \approx \frac{V_{CC} - 0.7}{R_{ref}}
+\]
+
+\textbf{基極電流的影響：}$I_{ref}$ 要同時提供 $Q_1$ 的集極電流和兩顆 BJT 的基極電流：
+\[
+  I_{ref} = I_{C1} + I_{B1} + I_{B2} = I_{C1}\left(1 + \frac{2}{\beta}\right)
+\]
+由於 $I_o = I_{C2} = I_{C1}$（$Q_1$、$Q_2$ 相同），所以：
+\end{keybox}
+
+\begin{formulabox}
+\textbf{基本電流鏡輸出電流：}
+\[
+  I_o = \frac{I_{ref}}{1 + 2/\beta} \tag{12.26}
+\]
+當 $\beta$ 很大（$\gg 1$）時，$I_o \approx I_{ref}$，基極電流的誤差可忽略。
+\end{formulabox}
+
+\noindent\textbf{面積比例擴展：}利用不同 B-E 面積比，可以得到與 $I_{ref}$ 成比例的多路輸出
+電流。例如 $Q_2$ 的面積為 $Q_1$ 的兩倍，則 $I_o = 2I_{ref}$。
+
+%--------------------------------------------------------------------
+\subsection*{二、電流源的輸出電阻 $R_o$}
+
+\begin{keybox}[為什麼輸出電阻很重要？]
+理想電流源的輸出電流完全不受輸出電壓 $V_o$ 影響，即 $R_o = \infty$。但實際 BJT
+有 \textbf{Early effect}——集極電流會隨 $V_{CE}$ 微幅增大。
+
+\medskip
+將實際電流源視為理想電流源 $I_s$ 並聯一個等效電阻 $R_o$，當輸出電壓變動
+$\Delta V_o$ 時，電流變動為：
+\[
+  \Delta I_o = \frac{\Delta V_o}{R_o} \tag{12.30}
+\]
+$R_o$ 越大，$\Delta I_o$ 越小，電流越穩定。
+\end{keybox}
+
+\begin{formulabox}
+\textbf{基本電流鏡的輸出電阻：}
+\[
+  R_o = r_o = \frac{V_A}{I_o} \tag{12.31}
+\]
+其中 $V_A$ 為 Early voltage。\\
+例：$I_o = 1$ mA、$V_A = 100$ V $\Rightarrow$ $R_o = 100$ k$\Omega$。
+\end{formulabox}
+
+%--------------------------------------------------------------------
+\subsection*{三、Wilson 電流鏡}
+
+\figc{fig/P12_3.png}{0.35\textwidth}{圖 12.5：Wilson 電流鏡}
+
+\begin{keybox}[Wilson 電流鏡——高精度與高輸出電阻]
+基本電流鏡有兩個缺點：(1) 基極電流誤差使 $I_o$ 偏離 $I_{ref}$；(2) 輸出電阻
+$R_o = r_o$ 不夠高。Wilson 電流鏡多加一顆 $Q_3$ 來同時解決這兩個問題。
+
+\medskip
+\textbf{結構：}$Q_1$ 為二極體接法，$Q_2$ 的集極\textbf{不直接}當輸出，而是接到 $Q_3$ 的射極。
+$Q_3$ 的集極才是真正的電流輸出端。參考支路有兩個 $V_{BE}$ 壓降：
+\[
+  I_{ref} = \frac{V_{CC} - V_{BE3} - V_{BE1}}{R_{ref}} = \frac{V_{CC} - 1.4}{R_{ref}} \tag{12.32}
+\]
+
+\textbf{精度改善原理：}$Q_3$ 的射極電流就是 $Q_2$ 的集極電流。透過 $Q_3$ 的「迴授」
+作用，$Q_2$ 的基極電流變化被 $Q_3$ 大幅抑制，使得輸出與參考的差異大幅縮小。
+
+\textbf{輸出電阻改善原理：}$Q_3$ 的集極輸出經由 $Q_2$ 的回授迴路穩定。當輸出電壓
+$V_o$ 變動時，$Q_3$ 的 C-E 電壓變化被 $Q_2$ 的回授所抑制，等效使輸出電阻
+大幅提升。
+\end{keybox}
+
+\begin{formulabox}
+\textbf{Wilson 電流鏡輸出電流：}
+\[
+  I_o = \frac{I_{ref}}{1 + \dfrac{2}{\beta(\beta+1)}} \tag{12.33}
+\]
+與基本鏡比較：分母中的 $2/\beta$ 被改善為 $2/[\beta(\beta+1)]$，對 $\beta = 100$ 而言，
+誤差從 $\sim 2\%$ 降至 $\sim 0.02\%$。
+
+\medskip
+\textbf{Wilson 電流鏡輸出電阻：}
+\[
+  R_o = \frac{\beta}{2}\,r_o \tag{12.37}
+\]
+較基本鏡的 $R_o = r_o$ 提高了 $\beta/2$ 倍（$\beta=100$ 時為 50 倍）。
+\end{formulabox}
+
+\noindent\textbf{範例：}$I_o = 1$ mA、$V_A = 100$ V、$\beta = 100$：
+\begin{itemize}[leftmargin=2em,itemsep=1pt]
+  \item 基本鏡：$R_o = 100$ k$\Omega$，$\Delta V_o = 1$ V 時 $\Delta I_o = 10$ $\mu$A（$1\%$）。
+  \item Wilson 鏡：$R_o = 50 \times 100\text{k} = 5$ M$\Omega$，$\Delta I_o = 0.2$ $\mu$A（$0.02\%$）。
+\end{itemize}
+Wilson 電流鏡大幅提升電流穩定度，因此以其發明者命名。
+
+%--------------------------------------------------------------------
+\subsection*{四、Widlar 電流鏡}
+
+\begin{keybox}[Widlar 電流鏡——產生微小電流]
+前述三種電流源都利用 $V_{BE1} = V_{BE2}$ 來使 $I_o \approx I_{ref}$，但如果 IC 只有一個
+1 mA 的參考電流，卻需要 $10\;\mu$A 甚至 $1\;\mu$A 的電流呢？直接用面積比
+（$1000:1$）是不切實際的。
+
+\medskip
+\textbf{Widlar 的想法：}在 $Q_2$ 的射極串聯一顆電阻 $R_E$，利用 $R_E$ 上的壓降打破
+$V_{BE1} = V_{BE2}$ 的關係，使 $I_o \ll I_{ref}$。
+\end{keybox}
+
+\noindent 由 BJT 的指數特性：
+\[
+  \frac{I_{ref}}{I_o} = e^{(V_{BE1}-V_{BE2})/V_T}
+\]
+而 $V_{BE1} - V_{BE2} = I_o R_E$（$R_E$ 上的壓降），代入得：
+
+\begin{formulabox}
+\textbf{Widlar 電流鏡設計公式：}
+\[
+  V_T \ln\frac{I_{ref}}{I_o} = I_o R_E \tag{12.38}
+\]
+此為超越方程，需代入已知的 $I_{ref}$ 和目標 $I_o$ 來求 $R_E$（或反之）。\\
+等價形式：$R_E = \dfrac{V_T}{I_o}\ln\dfrac{I_{ref}}{I_o}$。
+\end{formulabox}
+
+\noindent\textbf{範例：}$V_{CC} = 12$ V，$I_{ref} = 1$ mA，$I_o = 10\;\mu$A：
+\[
+  R_{ref} = \frac{12 - 0.7}{1\text{m}} = 11.3\;\text{k}\Omega, \qquad
+  R_E = \frac{0.025}{10\,\mu}\ln\frac{1\text{m}}{10\,\mu} = 2500 \times \ln(100) = 2500 \times 4.605 \approx 11.5\;\text{k}\Omega
+\]
+
+\noindent Widlar 電流鏡的自由度很大：改變 $R_E$ 可以在很大範圍內調整 $I_o$，
+這是它被命名為「Widlar」（以工程師 R.\,J.\,Widlar 命名）的原因。
+
+%--------------------------------------------------------------------
+\subsection*{五、三種電流鏡比較}
+
+\begin{center}\small
+\begin{tabular}{p{2.8cm}|c|c|c}
+\toprule
+ & \textbf{基本鏡} & \textbf{Wilson 鏡} & \textbf{Widlar 鏡} \\
+\midrule
+$I_o$ vs $I_{ref}$ & $I_{ref}/(1+2/\beta)$ & $I_{ref}/(1+2/[\beta(\beta\!+\!1)])$ & 由 $R_E$ 決定，可 $\ll I_{ref}$ \\
+精度 & 中等 & 極高 & 取決於 $R_E$ 精度 \\
+$R_o$ & $r_o$ & $\beta r_o/2$ & $r_o$（可加 cascode 提升） \\
+電晶體數 & 2 & 3 & 2 + $R_E$ \\
+參考壓降 & $V_{BE}$ & $2V_{BE}$ & $V_{BE}$ \\
+主要用途 & 一般偏壓 & 高精度、高穩定度 & 微小電流 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+%====================================================================
+\section*{12.4\quad 主動負載}
+\addcontentsline{toc}{section}{12.4 主動負載}
+
+\figc{fig/P12_5.png}{0.42\textwidth}{圖 12.10：以 pnp 電流鏡為主動負載的差動放大器}
+
+\begin{keybox}[為什麼需要主動負載？]
+從 12.2 節知道，差動增益為：
+\[
+  A_d = -\frac{I_A R_C}{2V_T} \tag{12.39}
+\]
+增益與 $R_C$ 成正比。但在 IC 中，高阻值電阻佔面積大、精度差，且電阻上的
+直流壓降 $I_C R_C$ 會使電晶體的 $V_{CE}$ 減小，可能導致離開主動區。
+
+\medskip
+\textbf{解決方案：}用電流源取代 $R_C$——電流源有\textbf{極大的小信號等效電阻}
+$r_o$，但直流壓降很小（只要 $V_{CE,sat}$ 即可）。這就是\textbf{主動負載}（active load）。
+
+傳統電阻稱為\textbf{被動負載}（passive load），電流鏡則為\textbf{主動負載}。
+\end{keybox}
+
+\subsection*{電路結構}
+
+如圖 12.10，用兩顆 pnp 型電晶體 $Q_3$、$Q_4$ 組成電流鏡，取代原本的 $R_C$。
+$Q_3$ 接成二極體形式，$Q_4$ 的集極作為輸出端。四顆電晶體的偏壓電流皆為
+$I_A/2$。
+
+\subsection*{增益分析}
+
+當加入差動信號 $v_d$ 時，由 (12.7) 式：
+\[
+  \Delta I_{C1} = G_m v_d, \qquad \Delta I_{C2} = -G_m v_d
+\]
+
+\noindent 由於 $Q_3$ 和 $Q_4$ 構成電流鏡，$Q_3$ 的 C 極電流變動等於 $I_{C1}$ 的變動
+（$\Delta I_{C3} = \Delta I_{C1} = G_m v_d$），而鏡射使 $\Delta I_{C4} = \Delta I_{C3} = G_m v_d$。
+
+輸出端（$Q_4$ 與 $Q_2$ 的集極共接）的淨電流變動為：
+\[
+  \Delta I_L = I_{C4} - I_{C2} = \Delta I_{C4} - \Delta I_{C2} = G_m v_d - (-G_m v_d) = 2G_m v_d
+\]
+
+\noindent 這個電流流過輸出端看到的等效電阻——$Q_2$ 與 $Q_4$ 的 C-E 極小信號等效電阻
+$r_{o2}$ 和 $r_{o4}$ 並聯：
+
+\begin{formulabox}
+\textbf{主動負載差動放大器的單端增益：}
+\[
+  A_d = 2G_m\,(r_{o2} \| r_{o4}) \tag{12.40}
+\]
+當 $R_L \to \infty$（開路）時，若 $r_{o2} = r_{o4} = r_o$：
+\[
+  A_d = 2G_m \cdot \frac{r_o}{2} = G_m r_o = \frac{I_A}{4V_T}\cdot\frac{V_A}{I_A/2} = \frac{V_A}{2V_T} \tag{12.42}
+\]
+\end{formulabox}
+
+\noindent\textbf{驚人的結果：}主動負載時的開路增益 $A_d = V_A/(2V_T)$，\textbf{只取決於元件本身的
+物理參數}（Early voltage $V_A$ 和熱電壓 $V_T$），與偏壓電流無關！
+
+\medskip
+\noindent\textbf{範例：}$V_A = 100$ V，$V_T = 25$ mV：$A_d = 100/(2 \times 0.025) = 2000$。\\
+這遠高於使用電阻負載所能達到的增益——而且不需要高阻值電阻。
+
+\subsection*{主動負載的另一個重要功能：雙端轉單端}
+
+主動負載除了提高增益外，還巧妙地將差動放大器的\textbf{雙端輸出轉換為單端輸出}。
+在圖 12.10 中，$V_o$ 只取自 $Q_2$（或 $Q_4$）的集極，但電流鏡自動將 $Q_1$ 側的信號
+搬到 $Q_4$ 的集極，使單端輸出就能得到完整的雙端增益。
+
+%====================================================================
+\section*{12.5\quad MOSFET 差動放大器}
+\addcontentsline{toc}{section}{12.5 MOSFET 差動放大器}
+
+\figc{fig/P12_6.png}{0.40\textwidth}{圖 12.11：MOSFET 差動放大器}
+
+\begin{keybox}[MOSFET 差動放大器的特色]
+MOSFET 差動放大器與 BJT 版本的工作原理完全相同——兩顆匹配的 FET
+共用尾電流源 $I_A$，放大 $V_d = V_1 - V_2$。
+
+\medskip
+\textbf{優點：}
+\begin{itemize}[leftmargin=2em,itemsep=1pt]
+  \item 閘極電流 $I_G = 0$，輸入電阻 $R_{in} \to \infty$——遠優於 BJT。
+  \item 在 IC 製程中 MOSFET 易於匹配。
+\end{itemize}
+
+\textbf{缺點：}
+\begin{itemize}[leftmargin=2em,itemsep=1pt]
+  \item $G_m$ 較 BJT 小，增益較低。
+  \item 需要主動負載才能獲得高增益。
+\end{itemize}
+\end{keybox}
+
+\subsection*{信號分析}
+
+FET 工作在飽和模式時，$I_D = k(V_{GS}-V_t)^2$。兩顆 FET 共用 $I_A$：
+\[
+  I_{D1} + I_{D2} = I_A
+\]
+
+差動電壓 $V_d = V_{GS1} - V_{GS2} = V_1 - V_2$。微分求轉導：
+\[
+  \frac{dV_d}{dI_{D1}} = \frac{1}{2\sqrt{kI_{D1}}} + \frac{1}{2\sqrt{kI_{D2}}}
+  \quad\xrightarrow{V_d=0,\;I_{D1}=I_{D2}=I_A/2}\quad
+  \frac{dV_d}{dI_{D1}} = \frac{1}{\sqrt{kI_A/2}}
+\]
+
+\begin{formulabox}
+\textbf{MOSFET 差動轉導：}
+\[
+  G_m = \frac{dI_{D1}}{dV_d}\bigg|_{V_d=0} = \sqrt{\frac{kI_A}{2}} \tag{12.44}
+\]
+\textbf{雙端差動增益：}
+\[
+  A_d = -2G_m R_D \tag{12.47}
+\]
+\end{formulabox}
+
+\noindent\textbf{BJT vs.\ MOSFET 差動放大器比較：}
+
+\begin{center}\small
+\begin{tabular}{p{3.2cm}|c|c}
+\toprule
+ & \textbf{BJT} & \textbf{MOSFET} \\
+\midrule
+轉導 $G_m$ & $I_A/(4V_T)$ & $\sqrt{kI_A/2}$ \\
+與 $I_A$ 的關係 & $\propto I_A$（線性） & $\propto \sqrt{I_A}$ \\
+典型值 ($I_A{=}1$ mA) & 10 mA/V & $\sim 1$ mA/V \\
+差動增益 & $-I_AR_C/(2V_T)$ & $-2\sqrt{kI_A/2}\cdot R_D$ \\
+輸入電阻 & $4\beta V_T/I_A$（有限） & $\to \infty$（$I_G = 0$） \\
+主要優勢 & 高 $G_m$、高增益 & 高 $R_{in}$、適合 IC \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\noindent\textbf{範例：}$k = 1$ mA/V$^2$、$I_A = 2$ mA、$R_D = 5$ k$\Omega$：
+\[
+  G_m = \sqrt{\frac{(1\text{m})(2\text{m})}{2}} = 1\;\text{mA/V}, \qquad A_d = -2(1\text{m})(5\text{k}) = -10
+\]
+同樣條件下 BJT：$G_m = 2\text{m}/(4\times25\text{m}) = 20$ mA/V，$A_d = -200$。\\
+$\Rightarrow$ \textbf{BJT 的增益遠高於 MOSFET}（在相同偏壓電流下）。但使用主動負載可
+大幅提升 MOSFET 的增益。
+
+%--------------------------------------------------------------------
+\subsection*{MOSFET 電流鏡}
+
+\figc{fig/P12_7.png}{0.32\textwidth}{圖 12.12：MOSFET 基本電流鏡}
+
+MOSFET 電流鏡的設計概念與 BJT 完全相同。但有兩個重要差異：
+
+\begin{enumerate}[leftmargin=2em]
+  \item \textbf{FET 的 G 極電流 $I_G = 0$}：不存在 BJT 的基極電流誤差問題（$I_o = I_{ref}$
+        精確成立）。
+  \item \textbf{FET 沒有 $V_{BE} = 0.7$ V 的特性}：偏壓設計需要用 $I_D = k(V_{GS}-V_t)^2$ 計算
+        $V_{GS}$。
+\end{enumerate}
+
+\noindent 基本 MOSFET 電流鏡的輸出電阻仍為 $R_o = r_o = V_A/I_o$（由通道長度調變效應決定）。
+
+%--------------------------------------------------------------------
+\subsection*{MOSFET Wilson 電流鏡與 Cascode 鏡}
+
+\figc{fig/P12_7.png}{0.32\textwidth}{圖 12.13：MOSFET Wilson 電流鏡}
+
+為提升輸出電阻，可使用 Wilson 結構或 cascode 結構。對 MOSFET 而言，
+Wilson 鏡的小信號分析結果為：
+
+\begin{formulabox}
+\textbf{MOSFET Wilson/Cascode 電流鏡輸出電阻：}
+\[
+  R_o \approx g_m r_o^2 = g_m \left(\frac{V_A}{I_o}\right)^2 \tag{12.49}
+\]
+相較基本鏡 $R_o = r_o$，提升了 $g_m r_o$ 倍，是非常顯著的改善。\\
+例：$g_m = 2$ mA/V、$r_o = 100$ k$\Omega$ $\Rightarrow$ $R_o = (2\text{m})(100\text{k})^2 = 20$ M$\Omega$。
+\end{formulabox}
+
+%--------------------------------------------------------------------
+\subsection*{MOSFET 差動放大器 + 主動負載}
+
+\figc{fig/P12_8.png}{0.40\textwidth}{圖 12.19：MOSFET 差動放大器配主動負載}
+
+\begin{keybox}[MOSFET 主動負載的高增益]
+如同 BJT 差動放大器使用主動負載，MOSFET 版本也可用電流鏡取代 $R_D$。
+增益公式為：
+\begin{formulabox}
+\[
+  A_d = 2G_m\,(r_{o2} \| r_{o4}) \tag{12.50}
+\]
+開路增益：若 $r_{o2} = r_{o4} = r_o$，$G_m = \sqrt{kI_A/2}$：
+\[
+  A_d = G_m r_o = \sqrt{\frac{kI_A}{2}}\cdot\frac{V_A}{I_A/2} \tag{12.52}
+\]
+\end{formulabox}
+
+例：$V_A = 100$ V、$k = 2$ mA/V$^2$、$I_A = 1$ mA：
+$A_d = \sqrt{(2\text{m})(1\text{m})/2} \times 100/(0.5\text{m}) = 1\text{m} \times 200\text{k} = 200$。
+
+\medskip
+若使用 Wilson 電流鏡或 cascode 結構作主動負載，利用其超高 $R_o$（$\approx g_m r_o^2$），
+可獲得非常大的增益——這是 IC 放大器常見的作法。
+\end{keybox}
+
+%====================================================================
+\section*{12.6\quad 多級放大器}
+\addcontentsline{toc}{section}{12.6 多級放大器}
+
+\figc{fig/P12_9.png}{0.52\textwidth}{圖 12.20：多級放大器的基本串聯結構}
+
+\begin{keybox}[為什麼需要多級放大器？]
+單級放大器的增益可能不足以滿足需求。此時可將多個放大器串聯（cascade），
+使總增益為各級增益之乘積。但串聯時必須考慮\textbf{級間負載效應}——前級的輸出
+電阻 $R_o$ 與後級的輸入電阻 $R_i$ 構成分壓器，降低實際增益。
+\end{keybox}
+
+\subsection*{一、設計原則——各級的角色}
+
+多級放大器的設計首先要確定每級放大器的「角色」：
+
+\begin{enumerate}[leftmargin=2em,itemsep=3pt]
+  \item \textbf{$A_1$（輸入放大器）：}通常希望有高輸入電阻 $R_{i1}$，使信號源 $R_S$ 的分壓
+        損失最小；同時有適當的增益以放大信號。差動放大器常用作第一級。
+  \item \textbf{$A_2$（中間放大器）：}主要任務是\textbf{提供高增益}。通常選用 CE 或 CS 組態，
+        因其電壓增益最大。
+  \item \textbf{$A_3$（輸出放大器）：}需在輸出端驅動低阻抗負載 $R_L$。常用 CC（射極隨耦）
+        或 CD 組態，增益接近 1 但\textbf{輸出電阻很低}，可驅動重負載。
+\end{enumerate}
+
+\subsection*{二、級間負載效應}
+
+\begin{keybox}[負載效應——多級放大器的核心問題]
+假設放大器 $A_1$（輸出電阻 $R_{o1}$，開路增益 $A_{v1}$）接到 $A_2$（輸入電阻 $R_{i2}$），
+則 $A_1$ 的實際輸出被 $R_{o1}$ 與 $R_{i2}$ 分壓：
+\begin{formulabox}
+\[
+  V_{o1,actual} = A_{v1}\,V_{i1} \cdot \frac{R_{i2}}{R_{o1} + R_{i2}}
+\]
+$R_{i2}$ 越大（相對於 $R_{o1}$），分壓損失越小。
+\end{formulabox}
+
+\textbf{類似地，}信號源 $V_s$（內阻 $R_S$）到第一級的分壓為
+$V_{i1} = V_s \cdot R_{i1}/(R_S + R_{i1})$；
+最後一級到負載的分壓為 $V_o = A_{v3}\,V_{i3} \cdot R_L/(R_{o3} + R_L)$。
+\end{keybox}
+
+\noindent\textbf{設計要點：}
+\begin{itemize}[leftmargin=2em,itemsep=2pt]
+  \item 第一級：$R_{i1}$ 要遠大於 $R_S$。
+  \item 中間級：$R_i$ 要遠大於前一級的 $R_o$。
+  \item 最後級（CC/CD）：$R_o$ 要遠小於 $R_L$。
+  \item 這就是為什麼 CC 放大器（增益 $\approx 1$）仍然非常有用——它的低 $R_o$ 使前面
+        所有級的增益能有效傳遞到負載。
+\end{itemize}
+
+\subsection*{三、實例分析——三級放大器}
+
+\figc{fig/P12_10.png}{0.38\textwidth}{圖 12.25：CC 放大器（射極隨耦器）作輸出級}
+
+教科書以一個三級放大器為例：
+\begin{itemize}[leftmargin=2em,itemsep=2pt]
+  \item \textbf{第一級：差動放大器}（$G_{m1}$、$A_{d1}$、$R_{C1}$、$R_{C2}$）。
+  \item \textbf{第二級：差動放大器}（$G_{m2}$、$A_{d2}$、$R_{C3}$、$R_{C4}$），作用是進一步放大
+        並將雙端信號轉為單端。
+  \item \textbf{第三級：CC 放大器}（射極隨耦），驅動負載 $R_L$，增益接近 1、$R_o$ 極低。
+\end{itemize}
+
+\begin{keybox}[設計流程精要]
+\textbf{第一步：}分別設計各級（偏壓、增益），確認電晶體在主動區。
+
+\textbf{第二步：}檢查級間偏壓匹配——前級的輸出直流電壓必須與後級的輸入直流
+電壓相容，使各級都能正常工作。這是多級設計中最容易出錯的地方。
+
+\medskip
+教科書範例中，第一級差動放大器的 C 極偏壓為 7 V，送到第二級差動放大器的
+B 極。若第二級需要 $V_B < V_{CC} - V_{CE,sat}$ 才能正常工作，則需驗證 7 V 是否合適。
+當 $R_C$ 過大，$V_C$ 可能降太低，使後級離開主動區——此時需要\textbf{重新設計}。
+
+\medskip
+\textbf{重新設計策略：}保持整體增益不變（$A_{d1} \times A_{d2} = \text{目標}$），調整各級 $R_C$
+的分配，使偏壓兼容。例如加大第一級 $R_{C}$ 同時減小第二級 $R_C$，或反之。
+\end{keybox}
+
+\subsection*{四、CC 放大器的設計}
+
+CC 放大器（射極隨耦器）作為輸出級，設計重點是：
+\begin{enumerate}[leftmargin=2em]
+  \item 確保最大輸出擺幅（maximum swing）時，$Q$ 仍不進入截止。
+  \item 設計 $R_E$（射極電阻）使直流偏壓電流足夠大，以便在最負輸出峰值時
+        仍維持 $i_E > 0$。
+  \item 同時考慮直流功耗：$P = (I_1 + I_2 + I_{E}) \times |V_{CC} - (-V_{EE})|$。
+\end{enumerate}
+
+\noindent 在最差情況下（$v_o$ 達負峰 $-V_{swing}$），需要：
+\[
+  I_{E,DC} + \frac{\Delta v_o}{R_E} \ge \frac{|v_o|}{R_L}
+\]
+由此可推導出 $R_E$ 的上限值，並留有安全裕度（safety margin）。
+
+%====================================================================
+\section*{12.7\quad 結語}
+\addcontentsline{toc}{section}{12.7 結語}
+
+\begin{keybox}[本章核心觀念總覽]
+\begin{enumerate}[leftmargin=2em,itemsep=3pt]
+  \item \textbf{差動放大器}是類比 IC 最基本的構件。它利用「瓜分電流」的概念，
+        只放大兩輸入的差值，天然抑制共模干擾，不需耦合電容即可放大直流信號。
+  \item \textbf{電流鏡}提供穩定的電流源：
+        \begin{itemize}[leftmargin=1.5em,itemsep=1pt]
+          \item 基本鏡——簡單但有 $2/\beta$ 誤差、$R_o = r_o$。
+          \item Wilson 鏡——誤差降至 $2/[\beta(\beta+1)]$、$R_o = \beta r_o/2$。
+          \item Widlar 鏡——用 $R_E$ 產生遠小於 $I_{ref}$ 的電流。
+        \end{itemize}
+  \item \textbf{主動負載}以電流鏡取代電阻負載，可獲得極高增益（$A = V_A/(2V_T)$），
+        且自然地將雙端信號轉為單端輸出。
+  \item \textbf{MOSFET 差動放大器}的輸入電阻無窮大，適合 IC 設計，但 $G_m$ 較 BJT 小。
+        配合主動負載與 Wilson/cascode 結構，增益可大幅提升。
+  \item \textbf{多級放大器}串聯多級以獲得高增益，但須注意級間負載效應與偏壓匹配。
+        CC 放大器常用作輸出級以驅動低阻抗負載。
+  \item 差動放大器是\textbf{運算放大器（OP）}的輸入級——本章所學內容是第十四章
+        學習 OP 內部結構的重要基礎。
+\end{enumerate}
+\end{keybox}
+
+%====================================================================
+\section*{附錄：本章重要公式速查表}
+\addcontentsline{toc}{section}{重要公式速查表}
+
+\begin{center}\small
+\renewcommand{\arraystretch}{1.6}
+\begin{tabular}{p{5.0cm}|l|l}
+\toprule
+\textbf{公式名稱} & \textbf{公式} & \textbf{編號} \\
+\midrule
+大信號電流 $I_{C1}$ & $\dfrac{I_A}{1+e^{-V_d/V_T}}$ & (12.5) \\[4pt]
+大信號電流 $I_{C2}$ & $\dfrac{I_A}{1+e^{V_d/V_T}}$ & (12.6) \\[4pt]
+BJT 差動轉導 & $G_m = \dfrac{I_A}{4V_T}$ & (12.8) \\[4pt]
+單端差動增益 & $A_{d1} = -G_m R_C$ & (12.10) \\[4pt]
+雙端差動增益 & $A_d = -2G_m R_C$ & (12.13) \\[4pt]
+差動輸入電阻 & $R_{in} = \dfrac{4\beta V_T}{I_A}$ & (12.16) \\[4pt]
+共模增益 & $A_{cm} = -\dfrac{\Delta R_C}{2R_A}$ & (12.21) \\[4pt]
+CMRR & $\left|\dfrac{A_d}{A_{cm}}\right|$ & (12.22) \\[4pt]
+基本鏡 $I_o$ & $\dfrac{I_{ref}}{1+2/\beta}$ & (12.26) \\[4pt]
+基本鏡 $R_o$ & $r_o = V_A/I_o$ & (12.31) \\[4pt]
+Wilson 鏡 $I_o$ & $\dfrac{I_{ref}}{1+2/[\beta(\beta+1)]}$ & (12.33) \\[4pt]
+Wilson 鏡 $R_o$ & $\dfrac{\beta}{2}\,r_o$ & (12.37) \\[4pt]
+Widlar 鏡設計 & $V_T\ln(I_{ref}/I_o) = I_o R_E$ & (12.38) \\[4pt]
+主動負載增益（開路） & $A_d = V_A/(2V_T)$ & (12.42) \\[4pt]
+MOSFET 差動轉導 & $G_m = \sqrt{kI_A/2}$ & (12.44) \\[4pt]
+MOSFET 差動增益 & $A_d = -2G_m R_D$ & (12.47) \\[4pt]
+MOSFET Wilson $R_o$ & $g_m r_o^2$ & (12.49) \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\vfill
+\begin{center}
+\small\color{maincol}\rule{0.6\textwidth}{0.4pt}\\[4pt]
+{\itshape 本觀念筆記涵蓋第 12 章全部核心內容，搭配教科書範例與習題使用效果最佳。}
+\end{center}
+
+\end{document}

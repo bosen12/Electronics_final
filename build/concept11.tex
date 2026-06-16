@@ -1,0 +1,621 @@
+\documentclass[12pt]{article}
+\usepackage{eedu}
+\renewcommand{\leftmark}{第 11 章\quad BJT 數位電路}
+
+\begin{document}
+
+\begin{center}
+{\Huge\bfseries\color{maincol} 第 11 章\quad BJT 數位電路}\\[0.5em]
+{\large\color{keycol} 觀念筆記}
+\end{center}
+\vspace{0.4em}\hrule\vspace{1.2em}
+
+\noindent
+CMOS 數位電路以低功率損耗與高雜訊邊界著稱，是目前最主流的數位邏輯技術。
+然而 CMOS 的驅動能力受 FET 尺寸限制，在需要推動大電容負載（如長距離互連線、
+I/O 接腳）的場合仍有不足。BJT 因其高轉導與大電流能力，在數位電路的歷史上
+曾經是主角——從早期的 RTL 到經典的 TTL，再到結合 CMOS 與 BJT 優點的 BiCMOS，
+各有其設計考量與物理限制。本章旨在比較 BJT 與 FET 在數位電路設計上的差異，
+深入理解每種架構的運作原理，從而獲得對整個數位電路技術演進的完整脈絡。
+
+%=====================================================================
+\section*{11.1\quad 簡單 BJT 反相器}
+\addcontentsline{toc}{section}{11.1 簡單 BJT 反相器}
+
+\subsection*{基本電路結構}
+
+\begin{minipage}{0.62\linewidth}
+最基本的 BJT 反相器使用一顆 npn 電晶體 $Q$ 配合集極電阻 $R_C$ 與基極電阻 $R_B$
+構成，如圖 P11.1 所示。電路由電源 $V_{CC}$ 供電，輸入訊號 $V_i$ 經由 $R_B$ 送入
+$Q$ 的基極，輸出 $V_o$ 取自集極。
+
+這個電路的運作完全依賴 BJT 在\textbf{截止}（cutoff）與\textbf{飽和}（saturation）
+兩個極端模式之間的切換，不使用線性放大區——這是數位電路與類比電路最根本的差異。
+\end{minipage}\hfill
+\begin{minipage}{0.34\linewidth}
+\figc{fig/P11_1.png}{0.92\linewidth}{圖 P11.1：簡單 BJT 反相器}
+\end{minipage}
+
+\subsection*{工作原理：兩個狀態}
+
+\begin{keybox}[截止模式（$V_i = V_L$）]
+當輸入電壓 $V_i = V_L$（低電位），若 $V_L$ 不足以使 $V_{BE}$ 達到導通電壓
+$V_{BE(on)} \approx 0.7$ V，則電晶體 $Q$ 處於\textbf{截止模式}（cutoff mode）。
+此時集極電流 $I_C = 0$，$R_C$ 上無壓降，因此：
+\[
+V_o = V_{CC} - I_C R_C = V_{CC} \quad \text{（高電位輸出）}
+\]
+在截止狀態下，電路不消耗功率（$P_{OFF} = 0$），因為沒有電流路徑從 $V_{CC}$ 到地。
+\end{keybox}
+
+\begin{keybox}[飽和模式（$V_i = V_H$）]
+當輸入電壓 $V_i = V_H$（高電位），$Q$ 的基極被注入足夠的電流使其進入
+\textbf{飽和模式}（saturation mode），$V_{CE}$ 被壓低至飽和電壓：
+\[
+V_o = V_{CE(sat)} \approx 0.2\ \text{V} \quad \text{（低電位輸出）}
+\]
+此時電路持續消耗功率，因為有電流從 $V_{CC}$ 經 $R_C$ 流過飽和的電晶體到地端。
+\end{keybox}
+
+\noindent
+綜合兩個狀態：輸入高$\to$輸出低、輸入低$\to$輸出高，實現了\textbf{反相器}的邏輯功能。
+
+\subsection*{核心公式推導}
+
+在飽和狀態下（$V_i = V_H$），各電流與元件值由以下關係決定：
+
+\begin{formulabox}
+\textbf{基極電流：}
+\[
+I_B = \frac{V_H - V_{BE(on)}}{R_B} \tag{11.1}
+\]
+\textbf{集極電流：}
+\[
+I_C = \frac{V_{CC} - V_{CE(sat)}}{R_C} \tag{11.2}
+\]
+\textbf{飽和條件：}
+\[
+I_B \ge \frac{I_C}{\beta} \tag{11.3}
+\]
+\end{formulabox}
+
+\noindent\textbf{物理意義：}公式 (11.3) 的飽和條件意味著：基極電流必須夠大，使得即使乘上
+$\beta$，電晶體仍然無法在主動區提供足夠的 $I_C$——這迫使 $V_{CE}$ 被壓縮到飽和值
+$V_{CE(sat)}$。換言之，飽和是一種「基極驅動過剩」的狀態。
+
+\subsection*{$R_B$、$R_C$ 的設計考量}
+
+設計 $R_C$ 和 $R_B$ 時需要同時考慮幾個目標：
+\begin{itemize}[leftmargin=2.2em,itemsep=2pt]
+\item \textbf{$R_C$ 決定集極電流大小：}$R_C$ 越小，$I_C$ 越大，開關速度越快（因為對
+  負載電容充電更快），但靜態功率也越大。
+\item \textbf{$R_B$ 決定基極電流：}$R_B$ 必須夠小以確保飽和條件 (11.3) 成立，但 $R_B$
+  太小會導致輸入電流過大，增加前級的驅動負擔。
+\item \textbf{$R_B$ 有最大值限制：}由飽和條件 $I_B \ge I_C/\beta$，可得 $R_B$ 的上限：
+  \[
+  R_{B,\max} = \frac{(V_H - V_{BE(on)}) \cdot \beta}{I_C}
+    = \frac{(V_H - V_{BE(on)}) \cdot \beta \cdot R_C}{V_{CC} - V_{CE(sat)}}
+  \]
+\end{itemize}
+
+\subsection*{靜態功率問題}
+
+BJT 反相器最大的缺點在於\textbf{靜態功率損耗}。當 $V_i = V_H$，電晶體飽和導通，
+持續有電流從 $V_{CC}$ 流過 $R_C$ 和 $Q$ 到地端。導通時的功率為：
+\[
+P_{ON} = V_{CC} \cdot I_C + V_H \cdot I_B
+\]
+截止時 $P_{OFF} = 0$。假設高低電位各佔一半時間，\textbf{平均靜態功率}為：
+
+\begin{formulabox}
+\[
+P_{avg} = \frac{P_{ON} + P_{OFF}}{2} = \frac{P_{ON}}{2}
+\]
+\end{formulabox}
+
+\noindent
+相比之下，CMOS 反相器在兩個靜態（輸出穩定高或低）下都沒有從 $V_{DD}$ 到地的
+直流路徑，靜態功率幾乎為零。這正是 CMOS 取代 BJT 邏輯的最主要原因。
+
+\subsection*{與 CMOS 反相器的關鍵差異}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}{>{\bfseries}l p{5.2cm} p{5.2cm}}
+\toprule
+\textbf{比較項目} & \textbf{簡單 BJT 反相器} & \textbf{CMOS 反相器} \\
+\midrule
+靜態功率 & 輸出為低時持續耗電 & 幾乎為零 \\
+輸出擺幅 & $V_{CE(sat)} \sim V_{CC}$ & $0 \sim V_{DD}$（全擺幅）\\
+速度 & BJT 轉導高，切換快 & 受 MOSFET $R_{ON}$ 限制 \\
+驅動能力 & 電流增益大，可驅動大負載 & 受通道寬度限制 \\
+面積 & BJT 製程面積較大 & MOSFET 可高度縮小 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+%=====================================================================
+\section*{11.2\quad TTL 電路}
+\addcontentsline{toc}{section}{11.2 TTL 電路}
+
+\subsection*{為什麼互補式 BJT 行不通？}
+
+\begin{minipage}{0.60\linewidth}
+受到 CMOS 反相器的啟發，工程師自然會問：能不能用一顆 pnp 加一顆 npn 組成
+互補推挽式（complementary push-pull）反相器，像 CMOS 那樣工作？
+如圖 P11.2 所示，將 pnp 電晶體 $Q_P$ 放在上方、npn 電晶體 $Q_N$ 放在下方，
+兩者的基極都由輸入訊號驅動。
+
+然而，這個看似合理的設計\textbf{無法正常工作}，原因在於 BJT 與 FET 的根本特性差異。
+\end{minipage}\hfill
+\begin{minipage}{0.37\linewidth}
+\figc{fig/P11_2.png}{0.82\linewidth}{圖 P11.2：互補 BJT 推挽電路}
+\end{minipage}
+
+\begin{keybox}[互補 BJT 失敗的物理原因]
+\textbf{MOSFET} 是電壓控制元件：當 $V_{GS} < V_t$ 時，通道完全關閉，漏極電流為零。
+因此在 CMOS 中，當一管導通時，另一管可以被完全截止。
+
+\textbf{BJT} 則不同：它的截止條件是 $V_{BE} < V_{BE(on)}$（約 0.5--0.7 V），
+但在互補式配置中，當一管的 B--E 接面正偏導通時，另一管的 B--E 接面會承受
+很大的電壓，遠超過 $V_{BE(on)}$，根本無法截止。
+
+具體而言，考慮圖中的情況：
+\begin{itemize}[leftmargin=2em,itemsep=2pt]
+\item 當 $V_i = V_{CC} = 5$ V 時，$Q_N$ 導通（$V_o \approx V_{CE(sat)} = 0.2$ V）。
+  但此時 $Q_P$ 的 B-E 電壓 $V_{BE,P} = -(V_{CC} - V_i) = 0$ V ？\textbf{不對}——
+  實際上 $Q_P$ 的 E-B 電壓 $= V_{CC} - V_o = 5 - 0.2 = 4.8$ V $\gg 0.7$ V，
+  $Q_P$ 無法截止！
+\item 當 $V_i = V_L = 0.2$ V 時，$Q_P$ 導通。但 $Q_N$ 的 $V_{BE} = V_i - V_o
+  = 0.2 - (V_{CC} - V_{CE(sat)}) < 0$？需要仔細分析——核心問題在於兩管
+  的基極電壓\textbf{同時被輸入電壓控制}，無法像 CMOS 那樣讓閘極電壓獨立
+  決定每管的開關狀態。
+\end{itemize}
+結論：BJT 的 B-E 接面只需 0.7 V 即導通，但在互補配置中另一管的 B-E 壓降
+會遠超此值，導致\textbf{兩管同時導通}，無法實現反相功能。
+\end{keybox}
+
+\subsection*{從 RTL 到 TTL 的演進}
+
+既然互補式 BJT 不可行，歷史上的解決方案是：
+
+\begin{enumerate}[leftmargin=2.4em,itemsep=2pt]
+\item \textbf{RTL（Resistor-Transistor Logic）}：在 BJT 反相器的基礎上，
+  於基極端加上電阻 $R_B$ 來解決電位控制問題。但 $R_B$ 同時帶來兩個缺點：
+  面積大（IC 中電阻佔面積）、速度慢（$R_B$ 與寄生電容形成 RC 延遲）。
+\item \textbf{TTL（Transistor-Transistor Logic）}：把 RTL 中的 pnp 電阻替換
+  為 npn 電晶體構成的等效電路，以電晶體取代電阻，同時解決了面積與速度問題。
+  這就是\textbf{電晶體-電晶體邏輯}的由來。
+\end{enumerate}
+
+\subsection*{標準 TTL 反相器結構}
+
+標準 TTL 反相器（如圖 11.5 所示）由以下主要部分組成：
+
+\begin{keybox}[TTL 反相器的兩大功能區塊]
+\begin{enumerate}[leftmargin=2em,itemsep=3pt]
+\item \textbf{輸入電路}（input circuit）：由多射極輸入電晶體 $Q_4$（圖中 $Q_1$）、
+  驅動電晶體 $Q_3$、以及電阻 $R_3$、$R_2$、$R_1$ 組成。$Q_4$ 的多個射極分別
+  接到不同的輸入端 A、B，實現 NAND 邏輯功能。
+\item \textbf{輸出電路}（output circuit，圖騰柱 totem-pole）：由 $Q_2$、$D$（上臂）
+  和 $Q_1$（下臂）組成，串聯在 $V_{CC}$ 與地之間，能夠快速對輸出負載充電與放電。
+\end{enumerate}
+\end{keybox}
+
+\subsection*{輸入電路的工作原理}
+
+\begin{minipage}{0.58\linewidth}
+TTL 的輸入電路（圖 P11.3）是理解整個 TTL 的關鍵。多射極電晶體 $Q_4$ 的
+基極經 $R_3$ 接到 $V_{CC}$，射極接到輸入端。
+
+\textbf{當輸入為低電位（$V_i = V_L$）時：}
+\begin{itemize}[leftmargin=1.8em,itemsep=1pt]
+\item $Q_4$ 的 B-E 正偏（$V_B \approx V_L + V_{BE(on)}$），$Q_4$ 飽和導通。
+\item $Q_4$ 把 $Q_3$ 的基極拉低，使 $Q_3$\textbf{截止}。
+\item 電流路徑：$V_{CC} \to R_3 \to Q_4\text{（B-E）} \to$~輸入端。
+\item $Q_3$ 截止意味著輸出上臂的 $Q_2$ 可以導通，輸出為\textbf{高電位}。
+\end{itemize}
+\end{minipage}\hfill
+\begin{minipage}{0.39\linewidth}
+\figc{fig/P11_3.png}{0.96\linewidth}{圖 P11.3：TTL 輸入電路}
+\end{minipage}
+
+\medskip
+\textbf{當輸入為高電位（$V_i = V_H$）時：}
+\begin{itemize}[leftmargin=1.8em,itemsep=1pt]
+\item $Q_4$ 的 B-E 反偏，但 B-C 正偏——$Q_4$ 進入\textbf{反向主動模式}（inverse
+  active mode）。
+
+  {\small 注意：反向主動模式是指 B-C 正偏而 B-E 反偏，與正常主動模式相反。
+  在反向主動模式下，B-C 結相當於「射極」，電流從基極流向集極方向。
+  此時 $V_{BC} \approx 0.3$ V（反向主動模式下的正偏壓較小）。}
+
+\item 電流經 $R_3$ 注入 $Q_4$ 基極，再經 $Q_4$ 的 B-C 結流向 $Q_3$ 的基極，
+  使 $Q_3$ \textbf{飽和導通}。
+\item $Q_3$ 導通使輸出下臂 $Q_1$ 導通，輸出為\textbf{低電位}。
+\end{itemize}
+
+\subsection*{圖騰柱（Totem-Pole）輸出}
+
+\begin{minipage}{0.58\linewidth}
+TTL 的輸出級稱為\textbf{圖騰柱}（totem-pole）結構，如圖 P11.4 所示。
+它由上臂（$Q_2$、$D$、$R_4$）和下臂（$Q_1$）組成。
+
+\textbf{輸出高電位（$V_i = V_L$）時：}
+\begin{itemize}[leftmargin=1.8em,itemsep=1pt]
+\item $Q_3$ 截止 $\Rightarrow$ $Q_1$ 不導通。
+\item $Q_2$ 導通（飽和）、$D$ 導通，電流路徑：
+  $V_{CC} \to R_4 \to Q_2 \to D \to V_o$。
+\item 輸出電壓：
+  $V_o = V_{CC} - I_o R_4 - V_{CE(sat)} - V_D$。
+\item 空載時 $V_o \approx V_{CC} - 0.2 - 0.7 = V_{CC} - 0.9$ V。
+\end{itemize}
+\end{minipage}\hfill
+\begin{minipage}{0.39\linewidth}
+\figc{fig/P11_4.png}{0.96\linewidth}{圖 P11.4：圖騰柱輸出電路}
+\end{minipage}
+
+\medskip
+\textbf{輸出低電位（$V_i = V_H$）時：}
+\begin{itemize}[leftmargin=1.8em,itemsep=1pt]
+\item $Q_3$ 飽和 $\Rightarrow$ $Q_1$ 也飽和導通，將輸出拉低。
+\item 此時 $Q_2$ 必須截止（否則會有大的穿越電流）。
+  $D$ 的存在正是為了確保：當 $Q_1$ 導通時（$V_o \approx 0.2$ V），
+  $Q_2$ 的 $V_{CE} + V_D$ 不足以讓 $Q_2$ 的 B-E 導通。
+\item 輸出電壓：$V_o = V_{CE(sat)} \approx 0.2$ V。
+\end{itemize}
+
+\textbf{二極體 $D$ 的作用：}二極體 $D$ 串在 $Q_2$ 射極與輸出之間，增加了一個 $V_D$
+的門檻。這使得當 $Q_1$ 導通時，$Q_2$ 的 B-E 電壓不足以導通（因為需要跨越
+$V_{CE,Q_1} + V_D \approx 0.9$ V 才能讓 $Q_2$ 導通，而 $Q_3$ 飽和時提供的
+基極電壓不夠高），從而防止上下臂同時導通造成的大穿越電流。
+
+\subsection*{TTL 的雜訊邊界}
+
+\begin{formulabox}
+標準 TTL 的邏輯電位定義：
+\[
+V_{OH} \ge 2.4\ \text{V},\quad V_{OL} \le 0.4\ \text{V},\quad
+V_{IL} \le 0.8\ \text{V},\quad V_{IH} \ge 2\ \text{V}
+\]
+低電位雜訊邊界與高電位雜訊邊界：
+\[
+NM_L = V_{IL} - V_{OL} = 0.8 - 0.4 = 0.4\ \text{V}
+\]
+\[
+NM_H = V_{OH} - V_{IH} = 2.4 - 2.0 = 0.4\ \text{V}
+\]
+\end{formulabox}
+
+\noindent
+TTL 在高低電位都有\textbf{相同的雜訊邊界}（各 0.4 V），但相比 CMOS 的雜訊邊界
+（在 $V_{DD} = 5$ V 時約為 $NM \approx 2.5$ V），TTL 的雜訊邊界明顯較小。
+此外，TTL 的輸出高電位 $V_{OH} = 2.4$ V 遠低於 $V_{CC} = 5$ V，
+說明 TTL 的輸出擺幅不是全擺幅——這也是其效能不如 CMOS 的原因之一。
+
+\subsection*{標準 TTL 的性能參數}
+
+\begin{formulabox}
+標準 TTL（74 系列）的典型性能參數：
+\[
+t_p \approx 10\ \text{ns},\quad P \approx 11\ \text{mW},\quad
+DP \approx 110\ \text{pJ}
+\]
+其中 $DP$（delay-power product，延遲--功率乘積）是衡量數位電路綜合性能的
+關鍵指標，$DP$ 越小代表性能越好。
+\end{formulabox}
+
+\subsection*{蕭特基箝位 TTL 系列}
+
+由於標準 TTL 的性能受到 BJT 飽和延遲的嚴重限制（BJT 進入飽和後，
+大量少數載子儲存在基極區，脫離飽和需要額外的\textbf{儲存時間}），
+工程師發展出\textbf{蕭特基箝位}（Schottky clamping）技術來改善速度。
+
+\begin{keybox}[蕭特基箝位的物理原理]
+在 BJT 的基極（B）與集極（C）之間\textbf{並聯一顆蕭特基二極體}
+（Schottky diode）。蕭特基二極體的正向導通電壓約為 0.3 V，
+遠低於 BJT B-C 結的導通電壓（約 0.5 V）。
+
+\textbf{工作原理：}當 BJT 接近飽和（$V_{CE}$ 開始降低到使 B-C 正偏時），
+蕭特基二極體會先一步導通，將多餘的基極電流分流到集極，
+\textbf{阻止 BJT 真正進入深度飽和}。這大幅減少了基極區的少數載子儲存，
+使得電晶體的開關速度顯著提升。
+
+\textbf{關鍵好處：}
+\begin{itemize}[leftmargin=1.8em,itemsep=1pt]
+\item 避免深度飽和 $\Rightarrow$ 消除儲存時間（storage time）
+\item 切換速度大幅提升
+\item 犧牲少量的 $V_{CE(sat)}$（略高於無箝位版本）
+\end{itemize}
+\end{keybox}
+
+\subsection*{TTL 系列比較}
+
+市面上常見的 TTL 積體電路有 54xx（軍規）與 74xx（商規）兩大系列。
+在 74 系列的基礎上，衍生出多種改良版本：
+
+\begin{center}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{>{\bfseries}l l c c c}
+\toprule
+\textbf{系列} & \textbf{全名} & $t_p$ & $P$ & $DP$ \\
+\midrule
+74（標準） & Standard TTL & 10 ns & 11 mW & 110 pJ \\
+74S & Schottky TTL & 3 ns & 20 mW & 60 pJ \\
+74LS & Low-power Schottky TTL & 10 ns & 2 mW & 20 pJ \\
+74AS & Advanced Schottky TTL & 1.5 ns & 20 mW & 30 pJ \\
+74ALS & Advanced Low-power Schottky TTL & 5 ns & 1 mW & 5 pJ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{keybox}[TTL 系列演進的設計理念]
+\begin{itemize}[leftmargin=2em,itemsep=3pt]
+\item \textbf{74S}：最早的蕭特基版本。在 BJT 的 B-C 間加上蕭特基二極體，
+  將傳輸延遲從 10 ns 降至 3 ns，但功率略增至 20 mW。$DP$ 從 110 pJ
+  降至約 60 pJ。
+\item \textbf{74LS}：低功率蕭特基版本。在蕭特基箝位的基礎上，同時降低
+  電路中的靜態電流，功率大幅降至 2 mW，$t_p$ 維持在 10 ns，
+  $DP$ 降至約 20 pJ。是最廣泛使用的 TTL 系列。
+\item \textbf{74AS}：54/74S 系列的改良電路設計，$t_p$ 進一步降至 1.5 ns，
+  $P \approx 20$ mW，$DP \approx 30$ pJ。
+\item \textbf{74ALS}：54/74LS 系列的改良版，$t_p \approx 5$ ns、$P \approx 1$ mW，
+  $DP$ 低至約 5 pJ，是 TTL 家族中延遲--功率乘積最佳的版本。
+\end{itemize}
+\end{keybox}
+
+\noindent
+\textbf{趨勢觀察：}從標準 TTL 到 74ALS，$DP$ 從 110 pJ 降至 5 pJ，改善了
+超過 20 倍。但即使是最先進的 74ALS，其靜態功率仍然無法與 CMOS 的近零靜態
+功率相比。這就是為什麼 TTL 最終被 CMOS 取代的根本原因。
+
+%=====================================================================
+\section*{11.3\quad BiCMOS 電路}
+\addcontentsline{toc}{section}{11.3 BiCMOS 電路}
+
+\subsection*{設計動機：結合兩者優點}
+
+既然 CMOS 有低功率的優勢而 BJT 有高驅動力的優勢，能否將兩者結合？
+這就是 \textbf{BiCMOS}（Bipolar-CMOS）電路的核心思想。
+
+\begin{keybox}[CMOS 與 BJT 的互補優勢]
+\begin{center}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}{>{\bfseries}l p{5cm} p{5cm}}
+\toprule
+\textbf{特性} & \textbf{CMOS} & \textbf{BJT} \\
+\midrule
+靜態功率 & 極低（幾乎為零） & 較高 \\
+雜訊邊界 & 大（接近 $V_{DD}/2$） & 小（約 0.4 V） \\
+驅動能力 & 受限於通道寬度 & 電流增益 $\beta$ 大 \\
+對電容充電速度 & 受 $R_{ON}$ 限制 & $R_{ON}/(\beta+1)$ 極快 \\
+輸入阻抗 & 極高（閘極絕緣） & 有限（需基極電流） \\
+面積 & 可高度微縮 & 相對較大 \\
+\bottomrule
+\end{tabular}
+\end{center}
+BiCMOS 的策略：\textbf{用 CMOS 做邏輯控制}（利用其高輸入阻抗和低功率），
+\textbf{用 BJT 做輸出驅動}（利用其電流增益和大電流能力）。
+\end{keybox}
+
+\subsection*{基本 BiCMOS 反相器}
+
+\begin{minipage}{0.58\linewidth}
+圖 P11.5 顯示了基本的 BiCMOS 反相器結構。電路核心仍是一對互補 MOSFET
+（$Q_P$：p-channel、$Q_N$：n-channel）做為邏輯控制，但輸出級加入了兩顆
+\textbf{npn 電晶體}（$Q_1$ 上拉、$Q_2$ 下拉）做為射極隨耦器
+（emitter follower），大幅增強驅動能力。
+
+輸出端通常需要驅動大電容 $C$（代表互連線與下級輸入的寄生電容），
+這正是 BJT 發揮優勢的地方。
+\end{minipage}\hfill
+\begin{minipage}{0.39\linewidth}
+\figc{fig/P11_5.png}{0.88\linewidth}{圖 P11.5：基本 BiCMOS 反相器}
+\end{minipage}
+
+\subsection*{基本型的工作原理}
+
+\textbf{1.\ 輸入為低電位（$V_i = V_L$）——充電過程：}
+
+\begin{minipage}{0.58\linewidth}
+\begin{itemize}[leftmargin=1.8em,itemsep=2pt]
+\item $Q_P$（p-channel）導通，$Q_N$（n-channel）截止。
+\item $Q_P$ 導通後提供電流給 $Q_1$ 的基極，$Q_1$ 作為射極隨耦器導通。
+\item $Q_1$ 以 $(\beta+1)$ 倍的基極電流對輸出電容 $C$ 充電。
+\item 充電等效電路如圖 P11.6 所示：$Q_1$ 的基極電流經由等效電阻 $R_{ON}$
+  （$Q_P$ 的導通電阻）供給。
+\item 輸出電壓逐漸上升，\textbf{但}當 $V_o$ 升至 $V_{DD} - V_{BE(on)}$ 時，
+  $Q_1$ 的 $V_{BE}$ 不再足以維持導通，$Q_1$ 截止。
+\end{itemize}
+\end{minipage}\hfill
+\begin{minipage}{0.39\linewidth}
+\figc{fig/P11_6.png}{0.58\linewidth}{圖 P11.6：充電等效電路}
+\end{minipage}
+
+\begin{formulabox}
+\textbf{充電狀態的輸出高電位：}
+\[
+V_{OH} = V_{DD} - V_{BE(on)}
+\]
+$Q_1$ 為射極隨耦器，輸出比基極低一個 $V_{BE}$，因此\textbf{無法達到全擺幅}。
+\end{formulabox}
+
+\bigskip
+\textbf{2.\ 輸入為高電位（$V_i = V_H$）——放電過程：}
+
+\begin{minipage}{0.58\linewidth}
+\begin{itemize}[leftmargin=1.8em,itemsep=2pt]
+\item $Q_N$（n-channel）導通，$Q_P$（p-channel）截止。
+\item $Q_N$ 導通後，電容 $C$ 上儲存的電荷經由 $Q_2$ 的 B-E 結放電，
+  使 $Q_2$ 導通。
+\item $Q_2$ 以 $(\beta+1)$ 倍的基極電流將電容 $C$ 的電荷快速洩放到地端。
+\item 放電等效電路如圖 P11.7 所示。
+\item \textbf{但}當 $V_o$ 降至 $V_{BE(on)}$ 時，$Q_2$ 的 $V_{BE}$ 不足以維持導通，
+  $Q_2$ 截止，放電停止。
+\end{itemize}
+\end{minipage}\hfill
+\begin{minipage}{0.39\linewidth}
+\figc{fig/P11_7.png}{0.72\linewidth}{圖 P11.7：放電等效電路}
+\end{minipage}
+
+\begin{formulabox}
+\textbf{放電狀態的輸出低電位：}
+\[
+V_{OL} = V_{BE(on)}
+\]
+$Q_2$ 同樣為射極隨耦器配置，輸出無法降至 0 V。
+\end{formulabox}
+
+\subsection*{BJT 電流增益的速度優勢——核心物理直覺}
+
+\begin{keybox}[$(\beta+1)$ 倍加速效應]
+這是 BiCMOS 最關鍵的概念，值得深入理解。
+
+在純 CMOS 中，對輸出電容 $C$ 的充電電流只來自 $Q_P$ 的漏極電流，
+等效電阻為 $R_{ON}$（MOSFET 的導通電阻），時間常數為：
+\[
+\tau_{CMOS} = R_{ON} \cdot C
+\]
+
+在 BiCMOS 中，$Q_P$ 的漏極電流變成了 $Q_1$ 的\textbf{基極電流}，
+而 $Q_1$ 以射極隨耦器的方式將此電流放大 $(\beta+1)$ 倍後對電容充電。
+電容所見的等效電阻大幅降低：
+
+\begin{formulabox}
+\[
+R_{eq} = \frac{R_{ON}}{\beta+1},\qquad
+\tau_{BiCMOS} = \frac{R_{ON} \cdot C}{\beta+1}
+\]
+\end{formulabox}
+
+\textbf{直覺理解：}BJT 像一個「電流放大器」——MOSFET 只需提供很小的基極電流，
+BJT 就能輸出數十倍甚至上百倍的射極電流來對電容充電。若 $\beta = 100$，
+則充電速度快了約 101 倍！
+
+\textbf{數值範例：}若 $R_{ON} = 100\ \Omega$、$C = 10$ pF、$\beta = 100$：
+\[
+\tau_{CMOS} = R_{ON}C = 100 \times 10\text{p} = 1\ \text{ns}
+\]
+\[
+\tau_{BiCMOS} = \frac{R_{ON}C}{\beta+1} = \frac{1\text{ns}}{101} \approx 9.9\ \text{ps}
+\]
+快了約 100 倍！這在驅動大電容負載（如長互連線）時優勢極為顯著。
+\end{keybox}
+
+\subsection*{基本型的缺陷：非全擺幅輸出}
+
+基本 BiCMOS 的最大問題是輸出\textbf{無法達到全擺幅}：
+\[
+V_{OL} = V_{BE(on)},\qquad V_{OH} = V_{DD} - V_{BE(on)}
+\]
+這會導致：
+\begin{itemize}[leftmargin=2em,itemsep=2pt]
+\item 雜訊邊界縮小（比純 CMOS 少了 $2V_{BE}$ 的擺幅範圍）。
+\item 下一級的邏輯準位判定變困難。
+\item 不完全兼容標準 CMOS 邏輯電位。
+\end{itemize}
+
+\subsection*{改良型 BiCMOS：加入 $R_1$、$R_2$}
+
+為了解決非全擺幅問題，改良型 BiCMOS（如教材圖 11.11）在電路中加入
+兩個電阻 $R_1$ 和 $R_2$：
+
+\begin{itemize}[leftmargin=2em,itemsep=3pt]
+\item \textbf{$R_1$ 的作用：}連接 $Q_1$ 的基極到地。當 $V_i = V_H$ 時，$Q_P$ 截止，
+  $R_1$ 提供一條路徑使 $Q_1$ 基極電荷能經 $R_1$ 洩放到地，確保 $Q_1$ 完全截止。
+  同時，當 $Q_2$ 進入截止模式（$V_o$ 降至 $V_{BE}$ 時），$R_1$ 能繼續將 $V_o$
+  拉向 0 V。
+\item \textbf{$R_2$ 的作用：}連接 $Q_2$ 的基極到 $V_{DD}$（或輸出端）。
+  當 $V_i = V_L$ 時，$Q_N$ 截止，$R_2$ 提供路徑使 $Q_2$ 基極殘餘電荷洩放，
+  確保 $Q_2$ 完全截止。同理，在充電過程中，當 $Q_1$ 截止後，$R_2$ 繼續將
+  $V_o$ 拉向 $V_{DD}$。
+\end{itemize}
+
+\begin{formulabox}
+改良型 BiCMOS 的輸出擺幅（有 $R_1$、$R_2$）：
+\[
+V_{OH} = V_{DD},\qquad V_{OL} = 0\ \text{V} \quad \text{（全擺幅）}
+\]
+\end{formulabox}
+
+\noindent
+但電阻在 IC 中佔面積較大，這是改良型的缺點。
+
+\subsection*{完整 BiCMOS：以 MOSFET 取代電阻}
+
+為了節省 IC 面積，最終版的 BiCMOS（如教材圖 11.14）將電阻 $R_1$、$R_2$
+分別替換為 \textbf{p-channel MOSFET ($M_1$)} 和 \textbf{n-channel MOSFET ($M_2$)}。
+
+\begin{itemize}[leftmargin=2em,itemsep=3pt]
+\item $M_1$ 取代 $R_1$：閘極接到適當的控制訊號，在需要時導通以洩放 $Q_1$ 基極電荷。
+\item $M_2$ 取代 $R_2$：同樣在需要時導通以洩放 $Q_2$ 基極電荷。
+\item MOSFET 的面積遠小於等效電阻，這在 IC 設計中是常見的面積優化手法。
+\item 功能上完全等效於改良型，仍然實現全擺幅輸出。
+\end{itemize}
+
+\begin{keybox}[BiCMOS 三種架構比較]
+\begin{center}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{>{\bfseries}l c c c}
+\toprule
+\textbf{架構} & $V_{OH}$ & $V_{OL}$ & \textbf{面積} \\
+\midrule
+基本型 & $V_{DD}-V_{BE}$ & $V_{BE}$ & 最小 \\
+改良型（$R_1,R_2$） & $V_{DD}$ & $0$ & 較大（電阻佔面積）\\
+完整型（$M_1,M_2$） & $V_{DD}$ & $0$ & 適中（MOSFET 小）\\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{keybox}
+
+%=====================================================================
+\section*{11.4\quad 結語}
+\addcontentsline{toc}{section}{11.4 結語}
+
+\begin{keybox}[本章核心觀念總結]
+\begin{enumerate}[leftmargin=2em,itemsep=4pt]
+\item \textbf{簡單 BJT 反相器}展示了 BJT 數位電路的基本原理：利用截止/飽和切換
+  實現反相功能，但存在嚴重的靜態功率問題。
+
+\item \textbf{互補式 BJT 無法像 CMOS 一樣工作}，因為 BJT 的 B-E 接面無法像
+  MOSFET 的閘極那樣完全關斷另一管——這是 BJT 與 FET 最根本的特性差異。
+
+\item \textbf{TTL 電路}是歷史上最成功的 BJT 數位邏輯家族。它透過多射極輸入電晶體
+  和圖騰柱輸出結構，實現了快速的反相/NAND 功能。蕭特基箝位技術
+  （74S/74LS/74AS/74ALS）進一步提升了速度與功率效率，但仍然無法根除
+  靜態功率問題。
+
+\item \textbf{BiCMOS} 是 CMOS 與 BJT 的最佳結合：用 CMOS 控制邏輯（享受零靜態功率
+  與高輸入阻抗），用 BJT 驅動輸出（享受 $(\beta+1)$ 倍的電流放大與極快的
+  充放電速度）。基本型犧牲擺幅換取簡單；改良型與完整型恢復全擺幅。
+
+\item \textbf{技術演進的主軸}：BJT 邏輯（RTL $\to$ TTL $\to$ Schottky TTL）
+  最終被 CMOS 取代，但 BJT 的驅動優勢在 BiCMOS 中得到延續——
+  尤其在需要驅動大電容負載的高速 I/O 介面設計中。
+\end{enumerate}
+\end{keybox}
+
+\bigskip
+
+\begin{center}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{>{\bfseries}l p{3.1cm} p{3.1cm} p{3.1cm}}
+\toprule
+\textbf{比較} & \textbf{BJT（TTL）} & \textbf{CMOS} & \textbf{BiCMOS} \\
+\midrule
+靜態功率 & 高 & 極低（$\approx 0$） & 極低 \\
+速度 & 快（受飽和限制） & 中等 & 非常快 \\
+驅動能力 & 強 & 弱（受 $W/L$ 限制） & 極強（$\beta+1$ 倍）\\
+雜訊邊界 & 小（0.4 V） & 大（$\approx V_{DD}/2$） & 大（全擺幅型）\\
+面積 & 中等 & 小（可微縮） & 較大（混合製程）\\
+主要應用 & 傳統邏輯 IC & 主流數位 IC & 高速 I/O 驅動 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\vfill
+\begin{center}
+{\small\color{gray} 本觀念筆記涵蓋教材第 11 章 11.1--11.4 節全部內容。}
+\end{center}
+
+\end{document}

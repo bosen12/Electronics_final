@@ -1,0 +1,704 @@
+\documentclass[12pt]{article}
+\usepackage{eedu}
+\renewcommand{\leftmark}{第 10 章\quad FET 數位電路}
+
+\begin{document}
+
+\begin{center}
+{\Huge\bfseries\color{maincol} 第 10 章\quad FET 數位電路}\\[0.4em]
+{\large\color{keycol} 觀念筆記}
+\end{center}
+\vspace{0.5em}
+\hrule
+\vspace{1em}
+
+本章從「簡單就是美」的設計理念出發，探討以最少元件完成反相功能的數位電路。
+從最基本的反相器定義（VTC 與雜訊邊界），經過簡單 FET 反相器的嘗試與缺陷，
+最終引出 CMOS 反相器這一「天才設計」。掌握 CMOS 的核心原理後，再延伸至
+邏輯閘、傳輸閘、環型振盪器，以及反相器作為類比放大器和比較器的應用。
+
+%=====================================================================
+\section*{10.1\quad 數位反相器}
+\addcontentsline{toc}{section}{10.1 數位反相器}
+
+\begin{keybox}[反相器的核心功能]
+在所有數位電路中，\textbf{反相器}（inverter）是最重要的電路——因為一旦可以做出反相器，
+就很容易做出其他邏輯電路。反相器的功能極為簡單：
+\begin{itemize}[leftmargin=2.2em,itemsep=2pt]
+  \item 輸入為 ``1''（高電位 $V_H$），則輸出為 ``0''（低電位 $V_L$）。
+  \item 輸入為 ``0''（低電位 $V_L$），則輸出為 ``1''（高電位 $V_H$）。
+\end{itemize}
+以電壓來表示：設 $V_H$ 代表數位電路的高電位，$V_L$ 代表低電位，
+且我們以 $V_H$、$V_L$ 代表邏輯 ``1'' 與 ``0''，則反相器的功能為：
+\[
+  V_i = V_H \;\Rightarrow\; V_o = V_L, \qquad V_i = V_L \;\Rightarrow\; V_o = V_H.
+\]
+\end{keybox}
+
+\subsection*{電壓轉換曲線 (VTC)}
+
+從電路的觀點看反相器，比較嚴謹的做法是量測反相器的\textbf{電壓轉換曲線}
+（Voltage Transfer Curve, VTC）：固定電源電壓，逐步改變輸入電壓 $V_i$，
+記錄對應的輸出電壓 $V_o$，所得的 $V_o$--$V_i$ 關係即為 VTC。
+
+理想的 VTC 是一條陡峭的「階梯」——輸入在某個臨界點以下時輸出恆為高電位，
+超過後瞬間切換到低電位。但實際的 VTC 有一段過渡區，轉折是漸進的。
+從 VTC 可定義四個關鍵電壓：
+
+\begin{keybox}[VTC 的四個關鍵電壓]
+\begin{itemize}[leftmargin=2.2em,itemsep=3pt]
+  \item $V_{OH}$（normal high-level output voltage）：\textbf{正常高電位輸出電壓}。
+    當輸入為 ``0'' 時，輸出所達到的穩定高電壓值。
+  \item $V_{OL}$（normal low-level output voltage）：\textbf{正常低電位輸出電壓}。
+    當輸入為 ``1'' 時，輸出所達到的穩定低電壓值。
+  \item $V_{IL}$（maximum allowable low-level input voltage）：
+    \textbf{可容許之最大低電位輸入電壓}。它定義在 VTC 上\textbf{斜率 $= -1$} 的
+    低電位側點。輸入低於 $V_{IL}$ 時，反相器能可靠判定 $V_i$ 為低電位。
+  \item $V_{IH}$（minimum allowable high-level input voltage）：
+    \textbf{可容許之最小高電位輸入電壓}。它定義在 VTC 上\textbf{斜率 $= -1$} 的
+    高電位側點。輸入高於 $V_{IH}$ 時，反相器能可靠判定 $V_i$ 為高電位。
+\end{itemize}
+\medskip
+\textbf{直覺理解}：$V_{IL}$ 與 $V_{IH}$ 是 VTC 轉折區的兩端——在這兩點之間，
+輸出正在快速變化，電路正處於「猶豫不決」的模糊地帶。低於 $V_{IL}$ 或高於 $V_{IH}$
+的區域，輸出才能被可靠地辨認為高或低電位。
+\end{keybox}
+
+\textbf{為什麼用「斜率 $= -1$」作為定義？}
+因為在 VTC 的過渡區中，斜率 $= -1$ 的點恰好標記了「輸出開始劇烈變化」
+與「輸出回到穩定」的邊界。在這兩個點之間，輸出電壓的變化量大於輸入電壓的
+變化量（增益的絕對值 $> 1$），所以任何落在此區間的輸入都會被「放大」成更大的
+輸出不確定性，這正是我們不希望輸入停留的區域。
+
+\subsection*{雜訊邊界 (Noise Margin)}
+
+在實際電路中，\textbf{雜訊}（noise）無所不在且會影響反相器的正確性。
+例如在正常狀況下，反相器的輸入若在低電位 $V_{OL}$，則輸出為 $V_{OH}$。
+但在有雜訊的狀況下，輸入電壓 $V_i$ 會加上一個隨機擾動 $V_{\text{noise}}$：
+\[
+  V_i = V_{OL} + V_{\text{noise}}
+\]
+若雜訊太大，使 $V_i > V_{IL}$，就會進入模糊區間，導致電路無法正確反相。
+因此，我們定義\textbf{雜訊邊界}來衡量電路對雜訊的容忍度：
+
+\begin{formulabox}
+\[
+  NM_L = V_{IL} - V_{OL} \quad\text{（低電位雜訊邊界，式 10.1）}
+\]
+\[
+  NM_H = V_{OH} - V_{IH} \quad\text{（高電位雜訊邊界，式 10.2）}
+\]
+\end{formulabox}
+
+$NM_L$ 表示輸入信號在低電位時，所能容忍之最大雜訊擾幅；
+$NM_H$ 表示輸入信號在高電位時，所能容忍之最大雜訊擾幅。
+\textbf{雜訊邊界愈大，電路愈不容易受雜訊影響，穩定性愈高。}
+在需要長距離傳輸或高雜訊環境（如馬達附近的工廠環境）中，
+必須選擇雜訊邊界大的數位電路，以免工作不正常。
+
+\subsection*{傳輸延遲 (Propagation Delay)}
+
+轉換速度是數位電路中極重要的考量，因為速度愈快表示單位時間內能處理的資料量愈大，
+電路的數據吞吐量（throughput）愈高。
+
+反相器的速度用\textbf{傳輸延遲}來衡量。量測的基準點取輸出擺幅的中點
+$\dfrac{V_{OH}+V_{OL}}{2}$。從輸入方波切換的瞬間開始計時：
+
+\begin{itemize}[leftmargin=2.2em,itemsep=2pt]
+  \item $t_{pHL}$（high-to-low propagation delay）：
+    輸入方波由低切到高後，輸出由高電位 $V_{OH}$ 降至中點所需的時間。
+  \item $t_{pLH}$（low-to-high propagation delay）：
+    輸入方波由高切到低後，輸出由低電位 $V_{OL}$ 升至中點所需的時間。
+\end{itemize}
+
+\begin{formulabox}
+\[
+  t_p = \frac{t_{pHL} + t_{pLH}}{2} \quad\text{（平均傳輸延遲，式 10.3）}
+\]
+\end{formulabox}
+
+$t_p$ 愈小，代表元件的反應速度愈快，是愈重要的數位元件參數。
+
+\subsection*{功率損耗}
+
+由於電子元件的尺寸愈做愈小，數位電路能容納的元件數愈來愈多，
+散熱成為 IC 製作的重要課題。功率損耗分為兩類：
+
+\begin{itemize}[leftmargin=2.2em,itemsep=2pt]
+  \item \textbf{靜態功率損耗}（static power consumption）：
+    以反相器為例，當輸出電壓 $V_o$ 穩定於 $V_{OH}$ 或 $V_{OL}$ 時，
+    電路所消耗的功率。如果有直流電流持續流過，就會產生靜態功率。
+  \item \textbf{動態功率損耗}（dynamic power consumption）：
+    輸出電壓在高低電位轉換期間，電路所消耗的功率。
+    一般提及的是 CMOS 反相器的靜態功率損耗為零——這是它的一大優點。
+\end{itemize}
+
+\subsection*{延遲--功率乘積 (Delay-Power Product)}
+
+設計數位電路時，我們希望同時兼顧\textbf{低傳輸延遲}（快速）與\textbf{低功率損耗}（省電），
+但兩者常常互相牽制。為了用單一數值衡量速度與功率的綜合品質，定義：
+
+\begin{formulabox}
+\[
+  DP = t_p \cdot P \quad\text{（延遲--功率乘積，式 10.4）}
+\]
+\end{formulabox}
+
+DP 值愈小，表示電路在速度及功率兩方面的綜合表現愈好。
+這個參數數十年來一直被電子工程師用來比較、篩選數位電路方案。
+實務上，設計也受散熱與封裝限制，因此低功率設計努力的方向一直是降低 DP 值。
+
+%=====================================================================
+\section*{10.2\quad 簡單 FET 反相器}
+\addcontentsline{toc}{section}{10.2 簡單 FET 反相器}
+
+\begin{keybox}[最直覺的反相器：NMOS + 汲極電阻]
+最簡單的 FET 反相器由一個 n-channel MOSFET 加一個汲極電阻 $R$ 接到電源 $V_{DD}$ 組成。
+閘極接輸入 $V_i$，汲極接輸出 $V_o$。
+
+\figc{fig/P10_1.png}{0.28\textwidth}{圖 10.5：簡單 FET 反相器}
+
+其工作原理極為直覺：
+\begin{itemize}[leftmargin=2.2em,itemsep=2pt]
+  \item \textbf{輸入為高電位} $V_i = V_{DD}$：FET 導通且工作在三極管區（triode mode），
+    汲極電壓 $V_o$ 被拉低——$V_o$ 很小但\textbf{不為零}，等於 $V_{DD} - I_D R$。
+    此時有電流 $I_D$ 持續流過 $R$ 和 FET，造成靜態功率 $P_{on} = V_{DD} \cdot I_D > 0$。
+  \item \textbf{輸入為低電位} $V_i = 0$ V：FET 截止（cutoff mode），
+    $I_D = 0$，$V_o = V_{DD}$。此時無電流流過，靜態功率為零。
+\end{itemize}
+\end{keybox}
+
+\subsection*{靜態功率分析}
+
+由以上可知：
+\begin{itemize}[leftmargin=2.2em,itemsep=2pt]
+  \item 當輸入為高（$V_i = V_{DD}$）：FET 導通在三極管區，$I_D > 0$，
+    電路持續消耗直流功率 $P_{on} = V_{DD} \cdot I_D$。
+  \item 當輸入為低（$V_i = 0$ V）：FET 截止，$I_D = 0$，$P_{off} = 0$。
+\end{itemize}
+因此，簡單 FET 反相器在\textbf{輸出為低電位}的狀態下會持續消耗功率。
+從系統的角度看，假設每個反相器在 ``0'' 和 ``1'' 出現的機率各半，
+則所有反相器加總起來，約一半的時間在消耗靜態功率——這在大規模積體電路中是不可接受的。
+
+\subsection*{電阻值 $R$ 的兩難}
+
+$R$ 的大小直接影響反相器的兩個關鍵性能：
+
+\begin{enumerate}[leftmargin=2.2em,itemsep=2pt]
+  \item \textbf{$R$ 大}：$V_{OL}$ 小（接近 0 V），輸出品質好；但 FET 截止時，
+    充電路徑的時間常數 $\tau = RC$ 大，$V_o$ 由 0 V 上升至 $V_{DD}$ 的時間長，
+    造成轉換速度慢。
+  \item \textbf{$R$ 小}：充電快，速度提升；但 FET 導通時分壓效果差，
+    $V_{OL}$ 偏高、靜態電流大，功率損耗更嚴重。
+\end{enumerate}
+
+\textbf{這就是簡單 FET 反相器的根本缺陷：速度與功率（或速度與輸出品質）相互牽制。}
+$R$ 的值無論怎麼選，都無法同時滿足速度快、功率低、$V_{OL}$ 小三個需求。
+這個矛盾促使工程師尋找更好的設計——也就是下一節的 CMOS 反相器。
+
+\subsection*{充電時間常數}
+
+另一方面，當輸入由高切到低（$V_i = V_{DD} \to 0$ V），FET 截止，$V_o$ 需從接近 0 V
+充電至 $V_{DD}$。此時的等效電路就是電源 $V_{DD}$ 透過電阻 $R$ 對輸出端的寄生電容 $C$ 充電，
+時間常數為 $\tau = RC$。
+
+FET 導通的充放電路中，由於 FET 的 on 電阻 $R_{on}$ 很小，放電速度較快。
+但截止後的充電完全仰賴 $R$，而 $R$ 往往因功率考量而被選得很大，
+因此\textbf{上升時間}（$t_{pLH}$）遠大於\textbf{下降時間}（$t_{pHL}$），
+導致延遲不對稱。速度瓶頸在充電——我們希望 $R$ 愈小愈好，
+但這又與功率損耗矛盾。
+
+%=====================================================================
+\section*{10.3\quad 天才設計 —— CMOS 反相器}
+\addcontentsline{toc}{section}{10.3 天才設計 --- CMOS 反相器}
+
+\begin{keybox}[從電阻到 PMOS：關鍵靈感]
+在簡單 FET 反相器中，我們希望電阻 $R$ 在不同狀態下表現出不同的特性：
+\begin{itemize}[leftmargin=2.2em,itemsep=2pt]
+  \item 當 $V_i = V_{DD}$ 時（FET 導通，輸出為低），我們希望 $R$ 很大——
+    減小 $I_D$，降低靜態功率損耗。
+  \item 當 $V_i = 0$ V 時（FET 截止，輸出需充電到高），我們希望 $R$ 很小——
+    加速對電容 $C$ 的充電。
+\end{itemize}
+
+這看似矛盾——一顆固定電阻不可能隨輸入改變！但電子工程師想到了一個巧妙的替代方案：
+用一顆 \textbf{p-channel MOSFET}（$Q_p$）取代電阻 $R$。
+\end{keybox}
+
+\subsection*{為什麼 PMOS 能取代電阻？}
+
+仔細觀察：PMOS 雖然不是電阻，但它表現出來的卻是一顆「聰明的可變電阻」——
+其值隨輸入電壓 $V_i$ 而改變，而且變化方向恰好符合我們的需求：
+
+\begin{enumerate}[leftmargin=2.2em,itemsep=2pt]
+  \item \textbf{當 $V_i = V_{DD}$}：此時 PMOS 的閘極電壓高，$|V_{GS}| < |V_t|$，
+    $Q_p$ 不導通（等效於開路 $\Rightarrow$ 電阻無窮大）。
+    同時 $Q_n$ 導通將輸出拉低，且沒有從 $V_{DD}$ 到地的直流路徑。
+  \item \textbf{當 $V_i = 0$ V}：此時 PMOS 的閘極電壓為 0，$|V_{GS}| = V_{DD} > |V_t|$，
+    $Q_p$ 導通（等效於小電阻），能快速對輸出端的電容充電，
+    使 $V_o$ 迅速升至 $V_{DD}$。同時 $Q_n$ 截止，無直流電流。
+\end{enumerate}
+
+這顆 PMOS 就是一個\textbf{主動負載}（active load）：利用電晶體本身
+「能被控制通斷」的特性來取代固定電阻，是現代 IC 設計中極常見的技術。
+
+\subsection*{CMOS 反相器結構}
+
+\figc{fig/P10_2.png}{0.28\textwidth}{圖 10.7：CMOS 反相器}
+
+由於是 n-channel MOSFET 及 p-channel MOSFET 組合而成，
+而且具有互補（complementary）作用，故稱為 \textbf{Complementary MOSFET}，
+簡稱 \textbf{CMOS}。CMOS 反相器的工作原理如下：
+
+\begin{keybox}[CMOS 反相器的互補工作原理]
+$Q_n$（NMOS）與 $Q_p$（PMOS）的閘極共接輸入 $V_i$，
+漏極共接輸出 $V_o$。$Q_p$ 的源極接 $V_{DD}$，$Q_n$ 的源極接地。
+
+\medskip
+\textbf{當 $V_i = V_{DD}$}：
+\begin{itemize}[leftmargin=2.2em,itemsep=1pt]
+  \item $Q_n$：$V_{GS} = V_{DD} > V_t$ $\Rightarrow$ 導通。
+    （因為 $Q_n$ 的 $V_{GS} = V_i - 0 = V_{DD}$）
+  \item $Q_p$：$V_{SG} = V_{DD} - V_{DD} = 0 < |V_t|$ $\Rightarrow$ 截止，
+    等效上等於一顆無窮大電阻 $R_{off}$。
+  \item 因此 $Q_n$ 將輸出拉到地：$V_o \approx 0$ V。
+    而且因 $Q_p$ 截止，\textbf{沒有電流從 $V_{DD}$ 流到地}。
+\end{itemize}
+
+\medskip
+\textbf{當 $V_i = 0$ V}：
+\begin{itemize}[leftmargin=2.2em,itemsep=1pt]
+  \item $Q_n$：$V_{GS} = 0 < V_t$ $\Rightarrow$ 截止。
+  \item $Q_p$：$V_{SG} = V_{DD} - 0 = V_{DD} > |V_t|$ $\Rightarrow$ 導通，
+    等效上等於一顆很小的電阻 $R_{on}$。
+  \item 因此 $Q_p$ 將輸出拉到 $V_{DD}$：$V_o = V_{DD}$。
+    而且因 $Q_n$ 截止，\textbf{同樣沒有電流從 $V_{DD}$ 流到地}。
+\end{itemize}
+
+\medskip
+\textbf{關鍵觀察}：\textbf{無論輸入為高或為低，CMOS 反相器永遠是「一通一斷」}——
+不會同時有兩顆電晶體導通。因此穩態下沒有從 $V_{DD}$ 到地的直流路徑，
+\textbf{靜態功率損耗為零}。
+
+同時，因為 $Q_p$ 導通時的 $R_{on}$ 很小，充電速度很快（不像用大電阻 $R$ 充電那麼慢），
+\textbf{解決了簡單 FET 反相器中速度與功率互相牽制的根本問題。}
+\end{keybox}
+
+\subsection*{CMOS 相較簡單 FET 反相器的優點}
+
+整理 CMOS 反相器相對於簡單 FET 反相器的優勢：
+
+\begin{enumerate}[leftmargin=2.2em,itemsep=2pt]
+  \item \textbf{靜態功率損耗為零}：永遠一通一斷，無直流電流。
+  \item \textbf{全擺幅輸出}（rail-to-rail）：$V_{OL} = 0$ V、$V_{OH} = V_{DD}$，
+    不像簡單 FET 反相器的 $V_{OL} \neq 0$。
+  \item \textbf{速度不受電阻限制}：PMOS 導通電阻小，充電快速。
+  \item \textbf{雜訊邊界對稱且較大}：如下節推導所示。
+  \item \textbf{代價}：需要兩顆電晶體（多一顆 PMOS），製程需同時製作 n-well 或 p-well。
+\end{enumerate}
+
+%=====================================================================
+\section*{10.4\quad CMOS 反相器特性}
+\addcontentsline{toc}{section}{10.4 CMOS 反相器特性}
+
+\subsection*{電壓轉換曲線 (VTC) 推導}
+
+CMOS 反相器的 VTC 可由 $Q_n$ 與 $Q_p$ 的電流方程式聯立求解。
+由於分析較為複雜，教科書以近似方式推導出 $V_{IL}$ 與 $V_{IH}$。
+
+\textbf{基本假設}：$Q_n$ 與 $Q_p$ 的臨界電壓大小相同（$|V_{tn}| = |V_{tp}| = V_t$），
+且 $k_n = k_p$（對稱設計）。
+
+\textbf{VTC 的形狀特徵}：
+\begin{itemize}[leftmargin=2.2em,itemsep=2pt]
+  \item 輸入電壓 $V_i = 0$ V 時，$Q_n$ 截止、$Q_p$ 導通，$V_o = V_{DD}$。
+    此時 $Q_p$ 的等效電路如同一顆極小的電阻 $R_{on}$ 連接 $V_{DD}$ 到輸出端，
+    因無電流故 $V_o$ 精確等於 $V_{DD}$。
+  \item 隨著 $V_i$ 從 0 V 慢慢升高，$V_o$ 大致維持在 $V_{DD}$ 附近不變——
+    直到 $V_i$ 接近 $V_{DD}/2$ 時，$V_o$ 才開始劇烈下降。
+  \item 當 $V_i$ 繼續增大超過 $V_{DD}/2$ 後，$V_o$ 持續下降，
+    最終在 $V_i = V_{DD}$ 時，$V_o = 0$ V。
+  \item VTC 曲線以 $(V_{DD}/2,\; V_{DD}/2)$ 為中心呈現\textbf{點對稱}（在對稱設計下）。
+\end{itemize}
+
+利用 VTC 上斜率 $= -1$ 的條件，可推導出：
+
+\begin{formulabox}
+\begin{align*}
+  V_{IL} &= \frac{3V_{DD} + 2V_t}{8} \quad\text{（式 10.9）} \\[6pt]
+  V_{IH} &= \frac{5V_{DD} - 2V_t}{8} \quad\text{（式 10.10）}
+\end{align*}
+\end{formulabox}
+
+\begin{formulabox}
+\[
+  V_{OL} = 0 \quad\text{（式 10.11）},\qquad V_{OH} = V_{DD} \quad\text{（式 10.12）}
+\]
+\end{formulabox}
+
+\textbf{物理直覺}：$V_{IL}$ 略低於 $V_{DD}/2$、$V_{IH}$ 略高於 $V_{DD}/2$，
+兩者以 $V_{DD}/2$ 為中心對稱分布。$V_t$ 愈大，
+$V_{IL}$ 愈高、$V_{IH}$ 愈低——轉換區間反而變窄，
+因為需要更大的過驅動才能讓 FET 開始導通。
+
+\subsection*{雜訊邊界}
+
+得到 $V_{IL}$、$V_{IH}$、$V_{OL}$、$V_{OH}$ 四個參數之後，
+可以計算 CMOS 反相器的雜訊邊界：
+
+\begin{formulabox}
+\begin{align*}
+  NM_L &= V_{IL} - V_{OL} = \frac{3V_{DD} + 2V_t}{8} - 0 = \frac{3V_{DD} + 2V_t}{8}
+    \quad\text{（式 10.13）} \\[6pt]
+  NM_H &= V_{OH} - V_{IH} = V_{DD} - \frac{5V_{DD} - 2V_t}{8} = \frac{3V_{DD} + 2V_t}{8}
+    \quad\text{（式 10.14）}
+\end{align*}
+\end{formulabox}
+
+\textbf{驚人的結果}：$NM_L = NM_H$！
+CMOS 反相器在高低電位有\textbf{完全相同的雜訊容忍度}——這是對稱設計帶來的美好性質。
+相較之下，簡單 FET 反相器因為 $V_{OL} \neq 0$，其雜訊邊界通常不對稱且較差。
+
+\subsection*{功率損耗}
+
+\begin{keybox}[CMOS 的功率特性]
+\textbf{靜態功率}：如 10.3 節所述，無論輸出為高或為低，
+CMOS 反相器永遠一通一斷，沒有從 $V_{DD}$ 到地的直流路徑。
+因此\textbf{靜態功率損耗為零}：$P_{\text{static}} = 0$。
+
+\medskip
+\textbf{動態功率}：但 CMOS 在高低電位轉換時會消耗功率。
+原因是輸出端存在等效電容 $C$（包含反相器本身的寄生電容 $C_{out}$
+以及外接邏輯閘輸入端的電容），每次轉換都需要對 $C$ 充放電。
+\end{keybox}
+
+\textbf{動態功率的推導}：
+
+假設一開始 $V_i = V_{DD}$，$V_o = 0$ V，且電容 $C$ 未儲存任何電荷。
+當 $V_i$ 由 $V_{DD}$ 切換到 $0$ V 時：
+\begin{itemize}[leftmargin=2.2em,itemsep=2pt]
+  \item $Q_p$ 導通，$Q_n$ 截止。
+  \item $Q_p$ 相當於一顆小電阻 $R_{on}$，電源 $V_{DD}$ 透過它對 $C$ 充電。
+  \item $C$ 充電至 $V_{DD}$，儲存的電荷為 $q = CV_{DD}$。
+\end{itemize}
+
+接著 $V_i$ 由 $0$ V 切換回 $V_{DD}$：
+\begin{itemize}[leftmargin=2.2em,itemsep=2pt]
+  \item $Q_n$ 導通，$Q_p$ 截止。
+  \item $C$ 上的電荷 $q = CV_{DD}$ 經由 $Q_n$ 放電至地，$V_o$ 回到 $0$ V。
+\end{itemize}
+
+因此，\textbf{每一次完整的高低切換}，電源都會提供 $q = CV_{DD}$ 的電荷。
+若反相器每秒鐘平均切換 $f$ 次，轉換頻率（switching frequency）為 $f$，
+則平均電流 $I = q \cdot f = fCV_{DD}$，平均功率：
+
+\begin{formulabox}
+\[
+  P = V_{DD} \cdot I = fCV_{DD}^2 \quad\text{（式 10.18）}
+\]
+\end{formulabox}
+
+這就是 CMOS 反相器的\textbf{動態功率}公式。幾個重要觀察：
+
+\begin{enumerate}[leftmargin=2.2em,itemsep=2pt]
+  \item $P \propto f$：切換頻率愈高，動態功率愈大。
+    這是現代高速 IC 發熱的主要原因。
+  \item $P \propto C$：等效電容愈大（外接負載愈多），功率愈高。
+  \item $P \propto V_{DD}^2$：電源電壓對功率的影響是\textbf{平方}關係。
+    這就是為什麼降低 $V_{DD}$ 一直是 IC 設計節省功率的重要方向
+    ——例如從 5 V 降到 3.3 V，再到 1.8 V、1.2 V。
+\end{enumerate}
+
+\subsection*{傳輸延遲}
+
+\figc{fig/P10_2.png}{0.28\textwidth}{圖 10.10：CMOS 反相器傳輸延遲分析}
+
+CMOS 反相器的傳輸延遲和輸出端的等效電容 $C$ 有關，
+而 $C$ 的大小取決於反相器本身的寄生電容以及外接邏輯閘的輸入電容。
+
+\textbf{等效電容}：
+\begin{formulabox}
+\[
+  C = C_{out} + n \cdot C_{in} \quad\text{（式 10.19）}
+\]
+\end{formulabox}
+其中 $C_{out}$ 是反相器本身輸出端的寄生電容，$C_{in}$ 是每個外接邏輯閘輸入端的寄生電容，
+$n$ 是外接的邏輯閘數量（扇出數，fanout）。
+
+\textbf{傳輸延遲推導}：
+
+令 $a = \dfrac{V_t}{V_{DD}}$（臨界電壓與電源電壓的比值），
+考慮 $V_o$ 從 $0$ V 上升到 $V_{DD}/2$ 的過程（$t_{pLH}$），
+$Q_p$ 在此期間提供充電電流。透過對 $Q_p$ 的電流方程式
+在飽和區與三極管區分段積分，可得：
+
+\begin{formulabox}
+\begin{align*}
+  t_{pLH} &= \frac{C}{k_p V_{DD} (1.75 - 3a + a^2)} \quad\text{（式 10.22）} \\[6pt]
+  t_{pHL} &= \frac{C}{k_n V_{DD} (1.75 - 3a + a^2)} \quad\text{（式 10.23）}
+\end{align*}
+\end{formulabox}
+
+$t_{pLH}$ 取決於 $Q_p$ 的 $k_p$（因為上升時是 $Q_p$ 在充電），
+$t_{pHL}$ 取決於 $Q_n$ 的 $k_n$（因為下降時是 $Q_n$ 在放電）。
+
+平均傳輸延遲：
+
+\begin{formulabox}
+\[
+  t_p = \frac{t_{pHL} + t_{pLH}}{2}
+      = \frac{C}{2V_{DD}(1.75 - 3a + a^2)}
+        \left(\frac{1}{k_n} + \frac{1}{k_p}\right)
+  \quad\text{（式 10.25）}
+\]
+\end{formulabox}
+
+\textbf{物理意義}：
+\begin{itemize}[leftmargin=2.2em,itemsep=2pt]
+  \item $t_p$ 與 $V_{DD}$ 成反比：電源電壓愈高，充電速度愈快，延遲愈短。
+    但 $V_{DD}$ 愈高，動態功率 $P = fCV_{DD}^2$ 也愈高——
+    \textbf{功率與速度之間必須取捨}。
+  \item $t_p$ 與 $C$ 成正比：負載電容愈大，充放電時間愈長。
+  \item $t_p$ 與 $k_n$、$k_p$ 成反比：$k$ 值愈大（電晶體尺寸愈大或載子遷移率愈高），
+    電流驅動能力愈強，延遲愈短。
+\end{itemize}
+
+\subsection*{延遲--功率乘積}
+
+利用 $P = fCV_{DD}^2$ 與 $t_p$ 的表示式，CMOS 反相器的延遲--功率乘積為：
+
+\begin{formulabox}
+\[
+  DP = t_p \cdot P = \frac{fC^2 V_{DD}}{2(1.75-3a+a^2)}
+    \left(\frac{1}{k_n}+\frac{1}{k_p}\right)
+  \quad\text{（式 10.26）}
+\]
+\end{formulabox}
+
+由此式得知，$DP$ 和 $C^2$ 成正比、和 $f$ 及 $V_{DD}$ 也成正比。
+由於數位電路的工作頻率 $f$ 愈來愈高，就必須降低 $V_{DD}$——
+\textbf{所以降低電源電壓一直是 IC 設計努力的方向}。
+
+\subsection*{扇出數 (Fanout)}
+
+在實際應用中，一個數位邏輯電路的輸出端可能要連接多個邏輯閘的輸入端，
+外接邏輯閘的個數就稱為\textbf{扇出數}（fanout），記為 $n$。
+
+CMOS 邏輯電路的輸入端是 MOSFET 的 G 極，$I_G = 0$，
+所以外接邏輯閘不會分走直流電流，fanout 可以無限大——但在實際上，
+每增加一個外接邏輯閘就會增加一個 $C_{in}$ 的寄生電容，使等效電容 $C$ 增大，
+導致傳輸延遲 $t_p$ 增加。因此，\textbf{fanout 受限於延遲規格}。
+
+當要求 $t_p \le t_{p,\max}$ 時，可由式 10.25 反推允許的最大 $C$，
+再由 $C = C_{out} + n \cdot C_{in}$ 求得最大 $n$。
+
+%=====================================================================
+\section*{10.5\quad 反相器的應用}
+\addcontentsline{toc}{section}{10.5 反相器的應用}
+
+掌握 CMOS 反相器的工作原理之後，可以將其延伸到多種重要的應用。
+本節介紹 CMOS 邏輯閘（NOR、NAND、EXOR）、傳輸閘邏輯電路、環型振盪器，
+以及反相器作為反相放大器和簡單比較器的使用。
+
+\subsection*{CMOS 邏輯閘}
+
+瞭解 CMOS 反相器的工作原理之後，推廣到邏輯閘其實很自然：
+只需要利用\textbf{布林代數}（Boolean algebra）就可以組合出任何數位邏輯功能。
+核心思想是：
+\begin{itemize}[leftmargin=2.2em,itemsep=2pt]
+  \item 上拉網路（pull-up network）由 PMOS 組成，負責將輸出拉到 $V_{DD}$。
+  \item 下拉網路（pull-down network）由 NMOS 組成，負責將輸出拉到 0 V。
+  \item 兩個網路互補——當上拉網路導通時，下拉網路截止；反之亦然。
+\end{itemize}
+
+\begin{keybox}[NOR 閘（反或閘）]
+\textbf{結構}：兩個 PMOS \textbf{串聯}（上拉）、兩個 NMOS \textbf{並聯}（下拉）。
+$A$ 和 $B$ 是輸入，$Y$ 是輸出。
+
+\textbf{工作原理}：
+\begin{itemize}[leftmargin=2.2em,itemsep=1pt]
+  \item 當 $A = 0$ V 且 $B = 0$ V 時：兩個 PMOS 都導通（串聯仍通），
+    兩個 NMOS 都截止。$Y$ 被拉到 $V_{DD}$。
+  \item 在其他情形下（至少一個輸入為 $V_{DD}$）：至少有一個 NMOS 導通，
+    且至少一個 PMOS 不導通（串聯即斷），$Y$ 被拉到 0 V。
+\end{itemize}
+
+\begin{formulabox}
+\[
+  Y = \overline{A + B} \quad\text{（NOR 功能，式 10.28）}
+\]
+\end{formulabox}
+\end{keybox}
+
+\begin{keybox}[NAND 閘（反及閘）]
+
+\figc{fig/P10_3.png}{0.28\textwidth}{圖 10.12：CMOS NAND 閘}
+
+\textbf{結構}：兩個 PMOS \textbf{並聯}（上拉）、兩個 NMOS \textbf{串聯}（下拉）。
+這正好與 NOR 閘互換。
+
+\textbf{工作原理}：
+\begin{itemize}[leftmargin=2.2em,itemsep=1pt]
+  \item 當 $A = V_{DD}$ 且 $B = V_{DD}$ 時：兩個 PMOS 都不導通，
+    兩個 NMOS 都導通（串聯都通）。$Y$ 被拉到 0 V。
+  \item 在其他情形下（至少一個輸入為 0 V）：至少有一個 PMOS 導通，
+    且至少一個 NMOS 不導通（串聯即斷），$Y$ 被拉到 $V_{DD}$。
+\end{itemize}
+
+\begin{formulabox}
+\[
+  Y = \overline{A \cdot B} \quad\text{（NAND 功能，式 10.29）}
+\]
+\end{formulabox}
+\end{keybox}
+
+\textbf{NAND 與 NOR 的速度差異}：
+在 NAND 閘中，NMOS 串聯使等效 $k_n$ 減半（等效電阻加倍），
+因此\textbf{下降時間}比單一反相器慢約 2 倍。
+而 PMOS 並聯使等效 $k_p$ 加倍，\textbf{上升時間}則可能比反相器更快。
+NOR 閘的情況相反：PMOS 串聯使上升慢，NMOS 並聯使下降快。
+這些差異在高速電路設計中非常重要。
+
+\begin{keybox}[EXOR 閘（異或閘）]
+異或閘的邏輯功能為 $Y = \bar{A}B + A\bar{B}$，即當 $A \neq B$ 時 $Y = 1$。
+直接用 CMOS 互補結構實現 EXOR 需要較多電晶體，
+因此可用傳輸閘（transmission gate）搭配反相器來簡化。
+
+\begin{formulabox}
+\[
+  Y = \bar{A} \cdot B + A \cdot \bar{B} \quad\text{（EXOR 功能，式 10.29c）}
+\]
+\end{formulabox}
+\end{keybox}
+
+\subsection*{傳輸閘邏輯電路}
+
+\figc{fig/P10_4.png}{0.28\textwidth}{圖 10.14：傳輸閘}
+
+\textbf{傳輸閘}（transmission gate）是另一類重要的數位電路。
+它不同於 NOR/NAND 等邏輯閘——傳輸閘的功能是當作一個\textbf{可控開關}，
+用數位信號控制是否讓類比信號（或數位信號）通過。
+
+傳輸閘由一組 NMOS 與 PMOS 並聯組成，控制訊號分別接到 $B$ 和 $\bar{B}$：
+
+\begin{itemize}[leftmargin=2.2em,itemsep=2pt]
+  \item 當 $B = 1$（$\bar{B} = 0$）：兩顆 FET 都導通，開關閉合（close），
+    輸入 $A$ 傳到輸出 $Y$，即 $Y = A$。
+  \item 當 $B = 0$（$\bar{B} = 1$）：兩顆 FET 都截止，開關打開（open），
+    $Y$ 為高阻抗（浮接）。
+\end{itemize}
+
+\textbf{為什麼需要 NMOS 和 PMOS 並聯？}
+如果只用一顆 NMOS 傳輸閘，當輸入信號接近 $V_{DD}$ 時，
+NMOS 的 $V_{GS}$ 會接近 $V_t$，導通能力大幅下降，信號無法完整傳遞。
+加入 PMOS 後，高電壓部分由 PMOS 負責傳遞，
+低電壓部分由 NMOS 負責——兩者互補，使全範圍的信號都能有效通過。
+
+傳輸閘可以用來實現各種邏輯功能。例如，利用兩組傳輸閘搭配反相器，
+可以用較少的 FET 實現 EXOR 功能。
+
+\subsection*{環型振盪器 (Ring Oscillator)}
+
+\figc{fig/P10_5.png}{0.35\textwidth}{圖 10.16：三級環型振盪器}
+
+\textbf{環型振盪器}利用反相器本身存在的傳輸延遲，使得將輸出信號接回輸入時，
+無法維持穩定的 ``0'' 或 ``1''，而會持續振盪。
+
+\textbf{結構}：將 $n$ 個反相器（$n \ge 3$，$n$ 必須為\textbf{奇數}）串接成環，
+最後一個反相器的輸出接回第一個反相器的輸入。
+
+\textbf{為什麼必須奇數？}
+因為每個反相器將信號反相一次。若 $n$ 為偶數，信號繞一圈後不會反相，
+就無法形成振盪（直流穩定）。$n$ 為奇數時，繞一圈後信號被反相，
+但由於傳輸延遲，這個反相結果要經過一段時間才能回到輸入端，
+於是輸入端被迫翻轉，如此反覆形成持續的自激振盪。
+
+\textbf{振盪分析}：
+信號繞環一圈的總延遲為 $n \cdot t_p$（每個反相器貢獻 $t_p$ 的延遲）。
+一個完整的振盪週期需要信號繞\textbf{兩圈}——第一圈使某節點由高變低，
+第二圈再使它由低變回高。因此：
+
+\begin{formulabox}
+\[
+  T = 2n \cdot t_p \quad\text{（式 10.31）},\qquad
+  f = \frac{1}{2n \cdot t_p} \quad\text{（式 10.32）}
+\]
+\end{formulabox}
+
+\textbf{應用}：在固定 $t_p$ 的條件下，利用 $n$（反相器個數）可以控制振盪頻率。
+因此 ring oscillator 是數位 IC 中產生方波信號的簡便方法。
+不過，由於 $t_p$ 很小（通常幾 ns），ring oscillator 容易產生高頻方波信號，
+但如果要得到低頻方波信號就需要串接非常多個反相器（例如 500 個），
+所以\textbf{不適合產生低頻方波}。
+
+\subsection*{反相放大器}
+
+CMOS 反相器的 VTC 在 $V_i = V_{DD}/2$ 附近的斜率最大（增益的絕對值最高），
+轉換曲線最陡峭。如果我們將反相器偏壓在這個工作點上，
+讓 $V_i = V_{DD}/2 + v_i$（其中 $v_i$ 是一個交流小信號），
+則輸出為 $V_o = V_{DD}/2 - A_v \cdot v_i$。
+
+也就是說，反相器在 $V_{DD}/2$ 附近的行為就像一個\textbf{反相放大器}，
+增益 $A_v$ 等於 VTC 在該點的斜率大小。
+實作上，可以將反相器輸出透過一顆電阻 $R_{fb}$ 接回輸入端，
+利用負回授將直流工作點自動穩定在 $V_{DD}/2$
+（因為 $V_i = V_o = V_{DD}/2$ 時才能達到直流平衡）。
+
+此說明反相器不只是數位電路——\textbf{在適當偏壓下也能作為類比放大器}。
+這可以串接多級來獲得更高的增益。
+
+\subsection*{簡單比較器}
+
+CMOS 反相器也可以作為\textbf{比較器}（comparator）使用。
+在比較器的應用中，$V_i$ 是輸入的類比信號（analog signal），
+且沒有特意偏壓為線性放大——而是利用 CMOS 反相器陡峭的 VTC 特性：
+
+\begin{itemize}[leftmargin=2.2em,itemsep=2pt]
+  \item 當 $V_i < V_{DD}/2$：輸出電壓 $V_o \approx V_{DD}$（高電位）。
+  \item 當 $V_i > V_{DD}/2$：輸出電壓 $V_o \approx 0$ V（低電位）。
+\end{itemize}
+
+反相器的判斷門檻（threshold）為 $V_{DD}/2$。
+輸入信號只要超過或低於此門檻，輸出就會分別變為 0 V 或 $V_{DD}$。
+例如輸入一個類比的溫度信號，反相器會輸出不同的數位電壓——
+可用來判斷溫度是否超過設定值，驅動風扇啟動或關閉。
+
+但要注意，反相器作為比較器的精度有限：它的參考電壓固定為 $V_{DD}/2$，
+無法精確調整；且輸出在接近 $V_{DD}/2$ 的區域並非完全理想的數位輸出。
+同時也因為反相器的判斷門檻固定（$V_i \approx V_{DD}/2$），
+所以只能比較 $V_i$ 是否大於或小於 $V_{DD}/2$。
+
+%=====================================================================
+\section*{10.6\quad 結語}
+\addcontentsline{toc}{section}{10.6 結語}
+
+\begin{keybox}[本章核心思想]
+CMOS 反相器讓我們看到了「簡單就是美」的最佳體現。
+其中 p-channel MOSFET 取代電阻作為主動負載的想法，
+完美滿足了速度與功率的雙重需求——不僅消除了靜態功率損耗，
+還實現了全擺幅輸出（$V_{OL}=0$, $V_{OH}=V_{DD}$）和對稱的雜訊邊界，
+令人印象深刻。
+
+\medskip
+\textbf{從簡單 FET 反相器到 CMOS 的演進}，體現了電路設計的思考脈絡：
+\begin{enumerate}[leftmargin=2.2em,itemsep=2pt]
+  \item 先用最直覺的方式（NMOS + 電阻）實現基本功能。
+  \item 分析其缺點（靜態功率、速度受限、$V_{OL} \neq 0$）。
+  \item 追問「能否讓電阻隨狀態改變？」——找到 PMOS 作為主動負載的靈感。
+  \item 驗證 CMOS 解決了所有問題——靜態功率為零、全擺幅、對稱雜訊邊界。
+\end{enumerate}
+
+\medskip
+\textbf{關鍵公式一覽}：
+\begin{itemize}[leftmargin=2.2em,itemsep=2pt]
+  \item 動態功率：$P = fCV_{DD}^2$（降低 $V_{DD}$ 是最有效的省電手段）
+  \item 傳輸延遲：$t_p \propto \dfrac{C}{k \cdot V_{DD}}$（增大 $k$ 或 $V_{DD}$ 可加速，但功率也增加）
+  \item 延遲--功率乘積：$DP = t_p \cdot P$（綜合品質指標，愈小愈好）
+  \item 環型振盪器頻率：$f = \dfrac{1}{2n \cdot t_p}$（利用反相器固有延遲產生方波）
+\end{itemize}
+\end{keybox}
+
+好的電路設計，不只是電子工程師的技術功力——
+更是一門追求「簡單與優雅」的藝術。
+
+\end{document}
