@@ -56,12 +56,19 @@ $V_{IL}$、$V_{IH}$：VTC 上\textbf{斜率$=-1$} 的兩個轉折點。
 \subsection*{二、簡單 FET 反相器（NMOS + $R$）}
 
 \begin{formulabox}
-$I_D = k\!\left[(V_{GS}-V_t)V_{DS} - \tfrac{1}{2}V_{DS}^2\right]$（三極管區）\qquad
-$I_D = \tfrac{1}{2}k(V_{GS}-V_t)^2$（飽和區）
+\textbf{本書定義}\quad $k \equiv \dfrac{1}{2}\,\mu_n C_{ox}\dfrac{W}{L}$\quad（$k$ 已含 $\tfrac{1}{2}$）\\[6pt]
+$I_D = k\!\left[2(V_{GS}-V_t)V_{DS} - V_{DS}^2\right]$\quad（三極管區）\\[4pt]
+$I_D = k(V_{GS}-V_t)^2$\quad（飽和區）
 \end{formulabox}
 
+\smallskip
+{\small\color{gray}
+若其他教材定義 $k'=\mu_n C_{ox}\frac{W}{L}$（不含 $\frac{1}{2}$），則三極管區
+$I_D=k'[(V_{GS}-V_t)V_{DS}-\frac{1}{2}V_{DS}^2]$，飽和區 $I_D=\frac{1}{2}k'(V_{GS}-V_t)^2$。
+兩套只是 $k=k'/2$，數值結果完全一樣。}
+
 \begin{tipbox}[解題 SOP]
-$V_i=V_{DD}$ 時 FET 導通在三極管區，列 $I_D=k[(V_{GS}-V_t)V_o - V_o^2/2] = (V_{DD}-V_o)/R$，解二次方程取\textbf{小根}（$V_o < V_{GS}-V_t$ 才在三極管區）。功率 $P = V_{DD} \cdot I_D$。
+$V_i=V_{DD}$ 時 FET 導通在三極管區，列 $I_D=k[2(V_{GS}-V_t)V_o - V_o^2] = (V_{DD}-V_o)/R$，解二次方程取\textbf{小根}（$V_o < V_{GS}-V_t$ 才在三極管區）。功率 $P = V_{DD} \cdot I_D$。
 \end{tipbox}
 
 \textbf{根本缺陷}：$R$ 大 $\Rightarrow$ 慢（$\tau=RC$），$R$ 小 $\Rightarrow$ $V_{OL}$ 高且耗電。速度與功率互相牽制。
