@@ -206,7 +206,11 @@ $I_D=\dfrac{V_{DD}-V_o}{R}$。代入三極管電流 $I_D=k\!\left[(V_{GS}-V_t)V_
    =\frac{10\times10^{-12}}{(1\times10^{-3})(5)(0.71)}=2.82\ \text{ns}. \]
 \textbf{(2)}（$Q_n$ 放電，求 $t_{pHL}$）因 $k_n=k_p$、$|V_t|$ 相同，
 \[ t_{pHL}=\frac{C}{k_nV_{DD}(1.75-3a+a^2)}=2.82\ \text{ns}. \]
-\ans{兩段時間皆約 $2.82$ ns（$t_{pLH}=t_{pHL}$，故 $t_p\approx2.82$ ns）。}
+\textbf{(3)} 傳輸延遲
+\[ t_p=\frac{t_{pLH}+t_{pHL}}{2}=\frac{2.82+2.82}{2}=2.82\ \text{ns}. \]
+\textbf{(4)} 每秒切換 $f=1000$ 次，動態功率（CMOS 靜態功率 $\approx0$）：
+\[ P=fCV_{DD}^2=1000\times(10\times10^{-12})\times5^2=250\ \text{nW}=0.25\ \mu\text{W}. \]
+\ans{(1)(2) $t_{pLH}=t_{pHL}\approx2.82$ ns。\;(3) $t_p\approx2.82$ ns。\;(4) $P=0.25\ \mu$W。}
 
 %---------------------------------------------------------------
 \prob{題 6 中，CMOS 反相器輸出端寄生電容 $C_{out}=2$ pF，每個外接邏輯閘輸入電容 $C_{in}=1$ pF。

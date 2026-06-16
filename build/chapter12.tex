@@ -284,7 +284,7 @@ $r_{o2}\Vert r_{o4}=100$ k$\Omega$，$R_L\Vert100\text{k}=10\text{k}\Vert100\tex
 
 %---------------------------------------------------------------
 \begin{minipage}{0.60\linewidth}
-\prob{圖 P12.10 是 CC 放大器（射極隨耦器），$Q$ 的 B 極偏壓 $V_B=5$ V、$R_L=2$ k$\Omega$、供電 $\pm12$ V。輸出最大擺幅 $\pm4$ V，設計 $R_E$ 以防止 $Q$ 進入截止。}
+\prob{圖 P12.10 是 CC 放大器（射極隨耦器），$Q$ 的 B 極偏壓 $V_B=5$ V、$R_L=20\ \Omega$、供電 $\pm12$ V。輸出最大擺幅 $\pm4$ V，設計 $R_E$ 以防止 $Q$ 進入截止。}
 \end{minipage}\hfill
 \begin{minipage}{0.37\linewidth}
 \figc{fig/P12_10.png}{0.96\linewidth}{圖 P12.10}
@@ -293,8 +293,8 @@ $r_{o2}\Vert r_{o4}=100$ k$\Omega$，$R_L\Vert100\text{k}=10\text{k}\Vert100\tex
 \sol 靜態射極電壓 $V_E=V_B-0.7=4.3$ V。輸出經耦合電容接 $R_L$（交流負載），瞬時射極電流
 \[ i_E=\underbrace{\frac{V_E+v_o+12}{R_E}}_{\text{經 }R_E}+\underbrace{\frac{v_o}{R_L}}_{\text{經 }R_L}. \]
 最易截止在負峰 $v_o=-4$ V，要求 $i_E\ge0$：
-\[ \frac{4.3-4+12}{R_E}\ge\frac{4}{R_L}\ \Rightarrow\ \frac{12.3}{R_E}\ge\frac{4}{2\text{k}}
-   \ \Rightarrow\ R_E\le\frac{12.3\times2\text{k}}{4}=6.15\ \text{k}\Omega. \]
-\ans{取 $R_E\le6.15$ k$\Omega$（例如 $R_E=6$ k$\Omega$），即可在 $\pm4$ V 擺幅下避免 $Q$ 截止。}
+\[ \frac{4.3-4+12}{R_E}\ge\frac{4}{R_L}\ \Rightarrow\ \frac{12.3}{R_E}\ge\frac{4}{20}=0.2
+   \ \Rightarrow\ R_E\le\frac{12.3}{0.2}=61.5\ \Omega. \]
+\ans{取 $R_E\le61.5\ \Omega$（例如 $R_E=56\ \Omega$），即可在 $\pm4$ V 擺幅下避免 $Q$ 截止。}
 
 \end{document}
