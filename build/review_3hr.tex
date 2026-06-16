@@ -1,0 +1,427 @@
+\documentclass[10pt]{article}
+\usepackage{eedu}
+\geometry{a4paper,margin=1.6cm,top=1.8cm,bottom=1.6cm}
+\renewcommand{\leftmark}{考前三小時複習重點}
+\fancyhead[L]{\small\color{maincol}\bfseries 基礎電子學．考前速查}
+\fancyhead[R]{\small\color{maincol}Ch\,10--12 總複習}
+
+\setlength{\parskip}{1pt}
+\setlength{\parindent}{0pt}
+\titlespacing*{\section}{0pt}{1.0ex}{0.5ex}
+\titlespacing*{\subsection}{0pt}{0.6ex}{0.3ex}
+
+% 更緊湊的 keybox
+\newtcolorbox{tipbox}[1][]{
+  enhanced, breakable, colback=yellow!8, colframe=orange!70!black,
+  fonttitle=\bfseries\small, title={#1}, left=1.5mm,right=1.5mm,top=0.8mm,bottom=0.8mm,
+  boxrule=0.6pt, arc=1.5mm}
+
+\newtcolorbox{trapbox}[1][]{
+  enhanced, breakable, colback=red!5, colframe=red!70!black,
+  fonttitle=\bfseries\small, title={#1}, left=1.5mm,right=1.5mm,top=0.8mm,bottom=0.8mm,
+  boxrule=0.6pt, arc=1.5mm}
+
+\begin{document}
+
+\begin{center}
+{\Huge\bfseries\color{maincol} 考前三小時複習重點}\\[0.3em]
+{\large\color{keycol} 第 10、11、12 章 \quad 公式速查 \& 觀念精要}
+\end{center}
+\vspace{0.3em}\hrule height 1.2pt\vspace{0.8em}
+
+%=====================================================================
+%  第 10 章
+%=====================================================================
+\section*{\color{maincol}\fbox{第 10 章} \quad FET 數位電路}
+
+\subsection*{一、核心定義（VTC、雜訊邊界、速度、功率）}
+
+\begin{formulabox}
+\begin{minipage}[t]{0.48\linewidth}
+\textbf{雜訊邊界}\\[2pt]
+$NM_L = V_{IL} - V_{OL}$\hfill(10.1)\\
+$NM_H = V_{OH} - V_{IH}$\hfill(10.2)
+\end{minipage}\hfill\vrule\hfill
+\begin{minipage}[t]{0.48\linewidth}
+\textbf{傳輸延遲 \& DP}\\[2pt]
+$t_p = \dfrac{t_{pHL}+t_{pLH}}{2}$\hfill(10.3)\\[4pt]
+$DP = t_p \cdot P$\hfill(10.4)
+\end{minipage}
+\end{formulabox}
+
+\smallskip
+$V_{IL}$、$V_{IH}$：VTC 上\textbf{斜率$=-1$} 的兩個轉折點。
+量測 $t_p$ 的基準：輸出擺幅中點 $(V_{OH}+V_{OL})/2$。
+
+\subsection*{二、簡單 FET 反相器（NMOS + $R$）}
+
+\begin{formulabox}
+$I_D = k\!\left[(V_{GS}-V_t)V_{DS} - \tfrac{1}{2}V_{DS}^2\right]$（三極管區）\qquad
+$I_D = \tfrac{1}{2}k(V_{GS}-V_t)^2$（飽和區）
+\end{formulabox}
+
+\begin{tipbox}[解題 SOP]
+$V_i=V_{DD}$ 時 FET 導通在三極管區，列 $I_D=k[(V_{GS}-V_t)V_o - V_o^2/2] = (V_{DD}-V_o)/R$，解二次方程取\textbf{小根}（$V_o < V_{GS}-V_t$ 才在三極管區）。功率 $P = V_{DD} \cdot I_D$。
+\end{tipbox}
+
+\textbf{根本缺陷}：$R$ 大 $\Rightarrow$ 慢（$\tau=RC$），$R$ 小 $\Rightarrow$ $V_{OL}$ 高且耗電。速度與功率互相牽制。
+
+\subsection*{三、CMOS 反相器（$\bigstar$ 最重要）}
+
+PMOS 取代 $R$ 當主動負載，永遠\textbf{一通一斷}，靜態功率$\,\approx\!0$，全擺幅。
+
+\begin{formulabox}
+\renewcommand{\arraystretch}{1.5}
+\begin{tabular}{@{}l@{\;}l@{\qquad}l@{\;}l@{}}
+$V_{OL}=0$ & (10.11) & $V_{OH}=V_{DD}$ & (10.12) \\
+$V_{IL}=\dfrac{3V_{DD}+2V_t}{8}$ & (10.9) &
+$V_{IH}=\dfrac{5V_{DD}-2V_t}{8}$ & (10.10) \\
+\multicolumn{4}{@{}l}{$NM_L = NM_H = \dfrac{3V_{DD}+2V_t}{8}$\hfill(10.13--14)\ \ 對稱！}
+\end{tabular}
+\end{formulabox}
+
+\begin{formulabox}
+\textbf{動態功率：}\quad $P = fCV_{DD}^2$\hfill(10.18)\\[3pt]
+\textbf{傳輸延遲（}令 $a = V_t/V_{DD}$\textbf{）：}\\[2pt]
+$t_{pLH} = \dfrac{C}{k_p V_{DD}(1.75-3a+a^2)}$\hfill(10.22)\qquad
+$t_{pHL} = \dfrac{C}{k_n V_{DD}(1.75-3a+a^2)}$\hfill(10.23)\\[6pt]
+$t_p = \dfrac{C}{2V_{DD}(1.75-3a+a^2)}\!\left(\dfrac{1}{k_n}+\dfrac{1}{k_p}\right)$\hfill(10.25)\qquad
+$C = C_{out}+n\,C_{in}$\hfill(10.19)
+\end{formulabox}
+
+\begin{trapbox}[常見陷阱]
+\begin{itemize}[leftmargin=1.8em,itemsep=0pt,topsep=1pt]
+\item $P \propto V_{DD}^2$：電壓減半 $\Rightarrow$ 功率降 75\%！這是降 $V_{DD}$ 省電的物理原因。
+\item $t_p \propto C/V_{DD}$：$V_{DD}$ 降 $\Rightarrow$ 功率低但速度慢，\textbf{功率與速度取捨}。
+\item 扇出數 $n$ 受\textbf{延遲限制}（非電流限制，因 $I_G=0$）。
+\item $k_n \neq k_p$ 時 $t_{pLH} \neq t_{pHL}$，$t_p$ 用平均。
+\end{itemize}
+\end{trapbox}
+
+\subsection*{四、邏輯閘 \& 應用}
+
+\renewcommand{\arraystretch}{1.2}
+\begin{center}\small
+\begin{tabular}{l c c c}
+\toprule
+& \textbf{上拉 (PMOS)} & \textbf{下拉 (NMOS)} & \textbf{速度影響} \\
+\midrule
+\textbf{NOR} $\overline{A+B}$ & 串聯 & 並聯 & 上升慢（串聯 $k_p$ 減半）\\
+\textbf{NAND} $\overline{A \cdot B}$ & 並聯 & 串聯 & 下降慢（串聯 $k_n$ 減半）\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{傳輸閘}：NMOS\,+\,PMOS 並聯，$B=1$ 導通（$Y=A$），$B=0$ 斷開。兩者互補才能傳遞全擺幅。
+
+\textbf{環型振盪器}（$n$ 個反相器，$n$ 為\textbf{奇數}）：
+\begin{formulabox}
+$T = 2n\,t_p$\hfill(10.31)\qquad $f = \dfrac{1}{2n\,t_p}$\hfill(10.32)
+\end{formulabox}
+
+反相器 $\to$ \textbf{反相放大器}：偏壓在 $V_{DD}/2$（用 $R_{fb}$ 負回授穩壓）。\\
+反相器 $\to$ \textbf{比較器}：門檻 $\approx V_{DD}/2$，超過輸出翻轉。
+
+\bigskip\hrule height 0.8pt\bigskip
+
+%=====================================================================
+%  第 11 章
+%=====================================================================
+\section*{\color{maincol}\fbox{第 11 章} \quad BJT 數位電路}
+
+\subsection*{一、簡單 BJT 反相器}
+
+\begin{formulabox}
+$I_B = \dfrac{V_H - V_{BE(on)}}{R_B}$\hfill(11.1)\qquad
+$I_C = \dfrac{V_{CC} - V_{CE(sat)}}{R_C}$\hfill(11.2)\qquad
+飽和條件：$I_B \ge \dfrac{I_C}{\beta}$\hfill(11.3)
+\end{formulabox}
+
+\begin{itemize}[leftmargin=2em,itemsep=0pt,topsep=2pt]
+\item 截止（$V_i$ 低）：$V_o = V_{CC}$，$P_{OFF}=0$。
+\item 飽和（$V_i$ 高）：$V_o = V_{CE(sat)} \approx 0.2$ V，$P_{ON} = V_{CC} \cdot I_C + V_H \cdot I_B$。
+\item $P_{avg} = P_{ON}/2$（高低各半時間）。
+\end{itemize}
+
+$R_B$ 上限：$R_{B,\max} = (V_H - V_{BE(on)})\beta R_C / (V_{CC} - V_{CE(sat)})$。
+
+\textbf{根本缺陷}：靜態功率高（飽和時有持續 DC 電流），$V_{OL} = 0.2$ V $\neq 0$。
+
+\subsection*{二、互補式 BJT 為何失敗？}
+
+BJT 的 B-E 只需 0.7\,V 即導通，互補配置下一管導通時另一管的 B-E 壓差遠超 0.7\,V $\Rightarrow$ \textbf{兩管同時導通}，無法實現反相。\\
+（FET 可以，因為 $V_{GS} < V_t$ 時通道完全關閉，$I_D = 0$。）
+
+\subsection*{三、TTL 電路}
+
+\begin{tipbox}[TTL 結構兩大區塊]
+\textbf{輸入電路}：多射極 $Q_4$（$V_i$ 低 $\to$ $Q_4$ B-E 正偏 $\to$ $Q_3$ 截止；$V_i$ 高 $\to$ $Q_4$ 反向主動 $\to$ $Q_3$ 飽和）\\
+\textbf{圖騰柱輸出}：上臂 $Q_2$+$D$+$R_4$（拉高）、下臂 $Q_1$（拉低）。$D$ 防止上下同時導通。
+\end{tipbox}
+
+\begin{formulabox}
+\textbf{標準 TTL 邏輯電位：}\quad
+$V_{OH}\ge2.4$ V，\ $V_{OL}\le0.4$ V，\ $V_{IL}\le0.8$ V，\ $V_{IH}\ge2.0$ V\\[3pt]
+$NM_L = 0.8-0.4 = 0.4$ V\qquad $NM_H = 2.4-2.0 = 0.4$ V
+\end{formulabox}
+
+\textbf{蕭特基箝位}：B-C 間並聯蕭特基二極體（$V_D \approx 0.3$ V $<$ B-C 的 0.5\,V），阻止深度飽和 $\Rightarrow$ 消除儲存時間，大幅加速。
+
+\begin{formulabox}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{@{}l c c c@{}}
+\textbf{系列} & $t_p$ & $P$ & $DP$ \\
+\midrule
+74（標準） & 10 ns & 11 mW & 110 pJ \\
+74S（蕭特基） & 3 ns & 20 mW & 60 pJ \\
+74LS（低功率蕭特基） & 10 ns & 2 mW & 20 pJ \\
+74AS & 1.5 ns & 20 mW & 30 pJ \\
+74ALS & 5 ns & 1 mW & \textbf{5 pJ}
+\end{tabular}
+\end{formulabox}
+
+\begin{trapbox}[TTL 計算注意]
+\begin{itemize}[leftmargin=1.8em,itemsep=0pt,topsep=1pt]
+\item 圖騰柱高電位：$V_o = V_{CC} - I_o R_4 - V_{CE(sat)} - V_D$，\textbf{別忘 $R_4$ 壓降}！
+\item TTL 輸入電路功率：$Q_3$ 射極有 $R_1$，需解聯立方程求 $V_{E3}$。
+\item $V_{BE(on)} = 0.7$ V，$V_{CE(sat)} = 0.2$ V，蕭特基 $V_D = 0.3$ V。
+\end{itemize}
+\end{trapbox}
+
+\subsection*{四、BiCMOS}
+
+CMOS 做邏輯控制（零靜態功率），BJT 做輸出驅動（$(\beta+1)$ 倍電流放大）。
+
+\begin{formulabox}
+\textbf{加速核心}：$\tau_{BiCMOS} = \dfrac{R_{ON} \cdot C}{\beta+1}$\quad（較 CMOS 的 $\tau = R_{ON}C$ 快 $\beta+1$ 倍！）
+\end{formulabox}
+
+\renewcommand{\arraystretch}{1.2}
+\begin{center}\small
+\begin{tabular}{l c c c}
+\toprule
+\textbf{BiCMOS 版本} & $V_{OH}$ & $V_{OL}$ & \textbf{備註} \\
+\midrule
+基本型 & $V_{DD}-V_{BE}$ & $V_{BE}$ & 非全擺幅 \\
+改良型（$R_1,R_2$） & $V_{DD}$ & $0$ & 電阻佔面積 \\
+完整型（$M_1,M_2$） & $V_{DD}$ & $0$ & MOSFET 取代 $R$，面積適中 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\bigskip\hrule height 0.8pt\bigskip
+
+%=====================================================================
+%  第 12 章
+%=====================================================================
+\section*{\color{maincol}\fbox{第 12 章} \quad 差動及多級放大器}
+
+\subsection*{一、差動放大器基本概念}
+
+兩顆匹配 BJT 共用尾電流 $I_A$：$I_{C1}+I_{C2}=I_A$。\\
+電流分配只由\textbf{差值} $V_d = V_1 - V_2$ 決定（「瓜分電流」）。
+不需耦合電容 $\Rightarrow$ 可放大 DC 信號。
+
+\subsection*{二、大信號分析}
+
+\begin{formulabox}
+$I_{C1} = \dfrac{I_A}{1+e^{-V_d/V_T}}$\hfill(12.5)\qquad
+$I_{C2} = \dfrac{I_A}{1+e^{\,V_d/V_T}}$\hfill(12.6)
+\end{formulabox}
+
+線性範圍 $\approx |V_d| \lesssim V_T \approx 25$ mV。超過約 $4V_T \approx 100$ mV 即幾乎全偏。
+
+\subsection*{三、小信號參數（$\bigstar$ 核心公式群）}
+
+\begin{formulabox}
+\renewcommand{\arraystretch}{1.8}
+\begin{tabular}{@{}p{4.8cm}@{\quad}l@{\qquad}l@{}}
+\textbf{BJT 差動轉導} & $G_m = \dfrac{I_A}{4V_T} = \dfrac{g_m}{2}$ & (12.8) \\
+\textbf{單端差動增益} & $A_{d1} = -G_m R_C$ & (12.10) \\
+\textbf{雙端差動增益} & $A_d = -2G_m R_C = -\dfrac{I_A R_C}{2V_T}$ & (12.13) \\
+\textbf{差動輸入電阻} & $R_{in} = 2r_\pi = \dfrac{4\beta V_T}{I_A}$ & (12.16) \\
+\textbf{共模增益} & $A_{cm} = -\dfrac{\Delta R_C}{2R_A}$ & (12.21) \\
+\textbf{CMRR} & $\left|\dfrac{A_d}{A_{cm}}\right|$ & (12.22)
+\end{tabular}
+\end{formulabox}
+
+\begin{trapbox}[常見考點]
+\begin{itemize}[leftmargin=1.8em,itemsep=0pt,topsep=1pt]
+\item $G_m = g_m/2$，因差動信號被兩管均分（每管只看到 $V_d/2$）。
+\item 雙端增益 $= 2\times$ 單端增益。
+\item $R_{in} = 2r_\pi$（串聯），不是 $r_\pi$。
+\item 理想差動放大器 $A_{cm}=0$（$\Delta R_C=0$ 且 $R_A=\infty$），CMRR $\to \infty$。
+\item 提高 CMRR：$\Delta R_C \to 0$（匹配）、$R_A \to \infty$（好的電流源）。
+\end{itemize}
+\end{trapbox}
+
+\subsection*{四、電流鏡 —— 三種比較（$\bigstar$ 必考）}
+
+\begin{formulabox}
+\renewcommand{\arraystretch}{1.8}
+\begin{tabular}{@{}p{3.2cm}@{\quad}l@{\qquad}l@{}}
+\multicolumn{3}{@{}l}{\textbf{基本電流鏡}} \\
+輸出電流 & $I_o = \dfrac{I_{ref}}{1+2/\beta}$ & (12.26) \\
+參考電流 & $I_{ref} = \dfrac{V_{CC}-V_{BE}}{R_{ref}}$ & \\
+輸出電阻 & $R_o = r_o = \dfrac{V_A}{I_o}$ & (12.31) \\[6pt]
+\multicolumn{3}{@{}l}{\textbf{Wilson 電流鏡}（3 顆 BJT）} \\
+輸出電流 & $I_o = \dfrac{I_{ref}}{1+2/[\beta(\beta+1)]}$ & (12.33) \\
+參考電流 & $I_{ref} = \dfrac{V_{CC}-2V_{BE}}{R_{ref}}$ & (12.32) \\
+輸出電阻 & $R_o = \dfrac{\beta}{2}\,r_o$ & (12.37) \\[6pt]
+\multicolumn{3}{@{}l}{\textbf{Widlar 電流鏡}（射極加 $R_E$，$I_o \ll I_{ref}$）} \\
+設計公式 & $V_T \ln\!\dfrac{I_{ref}}{I_o} = I_o R_E$ & (12.38)
+\end{tabular}
+\end{formulabox}
+
+\begin{tipbox}[電流鏡速記]
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{@{}l l l l@{}}
+& \textbf{精度} & \textbf{$R_o$} & \textbf{用途} \\
+基本 & $2/\beta$ 誤差 & $r_o$ & 一般偏壓 \\
+Wilson & $2/[\beta(\beta{+}1)]$ 誤差 & $\beta r_o/2$ & 高精度、高穩定度 \\
+Widlar & 取決 $R_E$ & $r_o$ & 產生微小電流
+\end{tabular}\\[3pt]
+Wilson 的 $R_{ref}$ 分母多一個 $V_{BE}$（兩個二極體壓降）。\\
+Widlar 公式是超越方程，須代數值求解。
+\end{tipbox}
+
+\subsection*{五、主動負載（$\bigstar$ 增益飛躍）}
+
+以 pnp 電流鏡取代 $R_C$：小信號等效電阻極大，DC 壓降極小。\\
+\textbf{同時完成}雙端轉單端（鏡射將 $Q_1$ 側信號搬到輸出端）。
+
+\begin{formulabox}
+$A_d = 2G_m(r_{o2}\|r_{o4})$\hfill(12.40)\\[4pt]
+開路增益（$r_{o2}=r_{o4}=r_o$）：\quad
+$\boxed{A_d = \dfrac{V_A}{2V_T}}$\hfill(12.42)\\[3pt]
+{\small 只與元件物理參數有關，與偏壓電流無關！例：$V_A=100$ V $\Rightarrow$ $A_d=2000$。}
+\end{formulabox}
+
+\subsection*{六、MOSFET 差動放大器}
+
+\begin{formulabox}
+\renewcommand{\arraystretch}{1.7}
+\begin{tabular}{@{}p{4.2cm}@{\quad}l@{\qquad}l@{}}
+MOSFET 差動轉導 & $G_m = \sqrt{\dfrac{kI_A}{2}}$ & (12.44) \\
+雙端增益 & $A_d = -2G_m R_D$ & (12.47) \\
+輸入電阻 & $R_{in} \to \infty$（$I_G=0$） & \\
+\end{tabular}
+\end{formulabox}
+
+\renewcommand{\arraystretch}{1.2}
+\begin{center}\small
+\begin{tabular}{l c c}
+\toprule
+& \textbf{BJT} & \textbf{MOSFET} \\
+\midrule
+$G_m$ & $I_A/(4V_T) \propto I_A$ & $\sqrt{kI_A/2} \propto \sqrt{I_A}$ \\
+$R_{in}$ & $4\beta V_T/I_A$（有限） & $\to \infty$ \\
+增益（同 $I_A$） & 高 & 低（$G_m$ 小） \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{MOSFET 電流鏡}：$I_G=0$ $\Rightarrow$ 無基極電流誤差（$I_o = I_{ref}$ 精確成立）。\\
+MOSFET Wilson/Cascode $R_o$：
+\begin{formulabox}
+$R_o \approx g_m r_o^2$\hfill(12.49)\qquad（較基本鏡 $r_o$ 提升 $g_m r_o$ 倍）
+\end{formulabox}
+
+\subsection*{七、多級放大器}
+
+\textbf{各級角色}：
+\begin{enumerate}[leftmargin=2em,itemsep=0pt,topsep=1pt]
+\item \textbf{輸入級}（差動）：高 $R_i$，減少信號源分壓損失。
+\item \textbf{中間級}（CE/CS）：提供\textbf{高增益}。
+\item \textbf{輸出級}（CC/CD）：增益 $\approx1$、\textbf{低 $R_o$}，驅動重負載。
+\end{enumerate}
+
+\begin{formulabox}
+\textbf{級間負載效應}：\quad
+$V_{o1,actual} = A_{v1}\,V_{i1}\cdot\dfrac{R_{i2}}{R_{o1}+R_{i2}}$\\[5pt]
+設計準則：$R_{i,\text{後級}} \gg R_{o,\text{前級}}$，$R_{o,\text{末級}} \ll R_L$。
+\end{formulabox}
+
+\begin{trapbox}[多級設計陷阱]
+\begin{itemize}[leftmargin=1.8em,itemsep=0pt,topsep=1pt]
+\item \textbf{偏壓匹配}：前級 $V_C$ 必須與後級 $V_B$ 相容（都在主動區）。
+\item CC 級增益 $\approx 1$ 但不可省略——沒有它前面的增益都「送不出去」。
+\item CC 輸出級 $R_E$ 上限：最負峰值時 $i_E > 0$（不進入截止）。
+\end{itemize}
+\end{trapbox}
+
+\bigskip\hrule height 1.2pt\bigskip
+
+%=====================================================================
+%  跨章比較
+%=====================================================================
+\section*{\color{maincol} 跨章總整理}
+
+\subsection*{三大技術比較}
+
+\renewcommand{\arraystretch}{1.25}
+\begin{center}\small
+\begin{tabular}{>{\bfseries}l p{3.3cm} p{3.3cm} p{3.3cm}}
+\toprule
+& \textbf{CMOS} & \textbf{TTL (BJT)} & \textbf{BiCMOS} \\
+\midrule
+靜態功率 & $\approx 0$（$\bigstar$） & 高（飽和有 DC 路徑） & $\approx 0$（CMOS 控制）\\
+速度 & 中（受 $R_{ON}$ 限制） & 快（高 $g_m$） & 極快（$\beta+1$ 加速）\\
+雜訊邊界 & 大（$\approx V_{DD}/2$） & 小（0.4 V） & 大（全擺幅型）\\
+輸出擺幅 & $0 \sim V_{DD}$（全） & $0.2 \sim 2.4$ V（不全） & 全（改良型）\\
+輸入阻抗 & 極高（$I_G=0$） & 有限 & 極高 \\
+面積 & 小 & 中 & 大（混合製程）\\
+主要用途 & 主流數位 IC & 傳統邏輯 IC & 高速 I/O 驅動 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection*{公式速查卡}
+
+\begin{formulabox}
+\renewcommand{\arraystretch}{1.6}
+\begin{tabular}{@{}p{6.5cm}@{\quad}l@{}}
+\multicolumn{2}{@{}l}{\textbf{--- 第 10 章 ---}} \\
+CMOS 動態功率 & $P = fCV_{DD}^2$ \\
+CMOS 傳輸延遲 & $t_p = \dfrac{C}{2V_{DD}(1.75-3a+a^2)}\!\left(\dfrac{1}{k_n}+\dfrac{1}{k_p}\right)$ \\
+Ring oscillator & $f = 1/(2n\,t_p)$ \\[6pt]
+\multicolumn{2}{@{}l}{\textbf{--- 第 11 章 ---}} \\
+BJT 飽和條件 & $I_B \ge I_C / \beta$ \\
+BiCMOS 加速 & $\tau = R_{ON}C/(\beta+1)$ \\[6pt]
+\multicolumn{2}{@{}l}{\textbf{--- 第 12 章 ---}} \\
+BJT 差動轉導 & $G_m = I_A/(4V_T)$ \\
+差動增益（雙端） & $A_d = -I_AR_C/(2V_T)$ \\
+主動負載開路增益 & $A_d = V_A/(2V_T)$ \\
+MOSFET 差動轉導 & $G_m = \sqrt{kI_A/2}$ \\
+基本鏡 $I_o$ & $I_{ref}/(1+2/\beta)$ \\
+Wilson 鏡 $R_o$ & $\beta r_o/2$ \\
+Widlar 鏡 & $V_T\ln(I_{ref}/I_o) = I_oR_E$ \\
+MOSFET Wilson $R_o$ & $g_m r_o^2$ \\
+級間負載 & $V_{o,actual} = A_v V_i \cdot R_{i2}/(R_{o1}+R_{i2})$
+\end{tabular}
+\end{formulabox}
+
+\subsection*{考前最後提醒}
+
+\begin{tipbox}[十個最常考的計算題型]
+\begin{enumerate}[leftmargin=2em,itemsep=1pt,topsep=1pt]
+\item 簡單 FET 反相器：解三極管區二次方程求 $V_o$、$I_D$、$P$。
+\item CMOS 反相器：代公式求 $V_{IL}$、$V_{IH}$、$NM$、$t_p$、$P$。
+\item CMOS fanout：由 $t_p \le$ 限制反推最大 $n$。
+\item Ring oscillator：$f = 1/(2n\,t_p)$，各級 $t_p$ 可不同。
+\item BJT 飽和設計：$R_B$ 上限、$I_C$、$P_{avg}$。
+\item TTL 圖騰柱輸出電壓與電流（含 $R_4$）。
+\item 電流鏡：基本鏡 $I_o$、Wilson $I_o$ 和 $R_o$、Widlar $R_E$。
+\item 差動放大器：$G_m$、$A_d$（單/雙端）、$R_{in}$。
+\item 主動負載增益 $V_A/(2V_T)$，CMRR 計算。
+\item 多級放大器：級間分壓、偏壓匹配驗證。
+\end{enumerate}
+\end{tipbox}
+
+\vfill
+\begin{center}
+\small\color{maincol}\rule{0.6\textwidth}{0.4pt}\\[4pt]
+{\itshape 祝考試順利！}
+\end{center}
+
+\end{document}
