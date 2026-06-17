@@ -250,7 +250,7 @@ $V_o = V_{o1} - V_{o2}$ 沒有影響，所以理想的 $A_{cm} = 0$。
 
 \textbf{但實際上}，差動放大器永遠不可能完全對稱：
 \begin{itemize}[leftmargin=2em,itemsep=1pt]
-  \item 兩臂負載電阻 $R_{C1}$ 和 $R_{C2}$ 可能有微小失配 $\Delta R_C = R_{C1} - R_{C2}$。
+  \item 兩臂負載電阻 $R_{C1}$ 和 $R_{C2}$ 可能有微小失配 $\Delta R_C = |R_{C1} - R_{C2}|$。
   \item 尾電流源的輸出電阻 $R_A$ 有限（不是真正的理想電流源）。
 \end{itemize}
 \end{keybox}
@@ -267,17 +267,15 @@ $V_o = V_{o1} - V_{o2}$ 沒有影響，所以理想的 $A_{cm} = 0$。
 在 $R_{C1} = R_{C2}$ 的理想情況下：
 $\Delta V_{o1} = \Delta V_{o2}$，$\Delta V_o = 0$，$A_{cm} = 0$。
 
-但若 $\Delta R_C \neq 0$：
+但若 $\Delta R_C \neq 0$，兩臂輸出變動量不等，差動輸出不為零：
 \[
-  \Delta V_o = \Delta V_{o1} - \Delta V_{o2}
-            = -\frac{\Delta V_{cm}}{2R_A}(R_{C1}-R_{C2})
-            = -\frac{\Delta V_{cm}\cdot\Delta R_C}{2R_A}
+  |\Delta V_o| = \frac{|\Delta V_{cm}|\cdot\Delta R_C}{2R_A}
 \]
 
 \begin{formulabox}
 \textbf{共模增益：}
 \[
-  A_{cm} = \frac{\Delta V_o}{\Delta V_{cm}} = -\frac{\Delta R_C}{2R_A} \tag{12.21}
+  A_{cm} = \frac{\Delta R_C}{2R_A} \tag{12.21}
 \]
 $A_{cm}$ 由兩個因素決定：(1) 負載失配 $\Delta R_C$（越小越好）；(2) 電流源輸出電阻
 $R_A$（越大越好）。
@@ -301,7 +299,7 @@ CMRR 愈大，表示差動放大器對共模干擾的抑制能力愈強，是衡
 
 \noindent\textbf{範例：}$R_{C1} = 5$ k$\Omega$、$R_{C2} = 5.1$ k$\Omega$（$\Delta R_C = 0.1$ k$\Omega$），
 $R_A = 1$ M$\Omega$，$A_d = -100$：\\
-$A_{cm} = -0.1\text{k}/(2 \times 1\text{M}) = -5\times10^{-5}$，
+$A_{cm} = 0.1\text{k}/(2 \times 1\text{M}) = 5\times10^{-5}$，
 CMRR $= 100 / (5\times10^{-5}) = 2\times10^6$。
 
 %====================================================================
@@ -814,7 +812,7 @@ BJT 差動轉導 & $G_m = \dfrac{I_A}{4V_T}$ & (12.8) \\[4pt]
 單端差動增益 & $A_{d1} = -G_m R_C$ & (12.10) \\[4pt]
 雙端差動增益 & $A_d = -2G_m R_C$ & (12.13) \\[4pt]
 差動輸入電阻 & $R_{in} = \dfrac{4\beta V_T}{I_A}$ & (12.16) \\[4pt]
-共模增益 & $A_{cm} = -\dfrac{\Delta R_C}{2R_A}$ & (12.21) \\[4pt]
+共模增益 & $A_{cm} = \dfrac{\Delta R_C}{2R_A}$ & (12.21) \\[4pt]
 CMRR & $\left|\dfrac{A_d}{A_{cm}}\right|$ & (12.22) \\[4pt]
 基本鏡 $I_o$ & $\dfrac{I_{ref}}{1+2/\beta}$ & (12.26) \\[4pt]
 基本鏡 $R_o$ & $r_o = V_A/I_o$ & (12.31) \\[4pt]

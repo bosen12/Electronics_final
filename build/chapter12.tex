@@ -35,7 +35,7 @@
 \begin{keybox}[同模增益與 CMRR]
 共模輸入 $V_{cm}=\dfrac{V_1+V_2}{2}$。電流源輸出電阻 $R_A$ 有限、且兩臂負載失配 $\Delta R_C$ 時：
 \begin{formulabox}
-\[ A_{cm}=-\frac{\Delta R_C}{2R_A}\;(12.21),\qquad
+\[ A_{cm}=\frac{\Delta R_C}{2R_A}\;(12.21),\qquad
    \mathrm{CMRR}=\left|\frac{A_d}{A_{cm}}\right|\;(12.22) \]
 \end{formulabox}
 理想對稱（$\Delta R_C=0$ 或 $R_A\to\infty$）時 $A_{cm}=0$、CMRR$\to\infty$。
@@ -125,10 +125,10 @@ $A=2G_m\,(R_L\Vert r_{o2}\Vert r_{o4})$，$R_L\to\infty$ 時 $A=\dfrac{V_A}{2V_T
 %---------------------------------------------------------------
 \prob{圖 P12.1，$I_A=2$ mA、電流源輸出電阻 $R_A=10$ M$\Omega$、$R_{C1}=10$ k$\Omega$、$R_{C2}=10.1$ k$\Omega$。求 (1) $A_{cm}$；(2) CMRR。}
 \sol $\Delta R_C=R_{C2}-R_{C1}=0.1$ k$\Omega$。
-\[ A_{cm}=-\frac{\Delta R_C}{2R_A}=-\frac{0.1\text{k}}{2(10\text{M})}=-5\times10^{-6}. \]
+\[ A_{cm}=\frac{\Delta R_C}{2R_A}=\frac{0.1\text{k}}{2(10\text{M})}=5\times10^{-6}. \]
 $G_m=\dfrac{2\text{m}}{4(25\text{m})}=0.02$ S，$A_d=-2G_mR_C\approx-2(0.02)(10\text{k})=-400$。
 \[ \mathrm{CMRR}=\left|\frac{A_d}{A_{cm}}\right|=\frac{400}{5\times10^{-6}}=8\times10^{7}\ (\approx158\ \text{dB}). \]
-\ans{$A_{cm}=-5\times10^{-6}$，CMRR$=8\times10^{7}$（約 158 dB）。}
+\ans{$A_{cm}=5\times10^{-6}$，CMRR$=8\times10^{7}$（約 158 dB）。}
 
 %---------------------------------------------------------------
 \begin{minipage}{0.64\linewidth}
