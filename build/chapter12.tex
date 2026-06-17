@@ -46,7 +46,7 @@
   \item \textbf{基本鏡（圖 P12.2）}：$I_{ref}=\dfrac{V_{CC}-0.7}{R_{ref}}$，
         $I_o=\dfrac{I_{ref}}{1+2/\beta}$ (12.26)，輸出電阻 $R_o=r_o=\dfrac{V_A}{I_o}$ (12.31)。
   \item \textbf{Wilson 鏡（圖 P12.3）}：$I_{ref}=\dfrac{V_{CC}-1.4}{R_{ref}}$，
-        $I_o=\dfrac{I_{ref}}{1+2/[\beta(\beta+1)]}$ (12.28)，$R_o=\dfrac{\beta}{2}r_o$ (12.37)——基極電流誤差極小、輸出電阻極高。
+        $I_o=\dfrac{I_{ref}}{1+2/[\beta(\beta+2)]}$ (12.33)，$R_o=\dfrac{\beta}{2}r_o$ (12.37)——基極電流誤差極小、輸出電阻極高。
   \item \textbf{Widlar 鏡（圖 P12.4）}：$Q_2$ 射極串 $R_E$，可得極小輸出電流：
         \[ V_T\ln\frac{I_{ref}}{I_o}=I_oR_E\ \Rightarrow\ R_E=\frac{V_T}{I_o}\ln\frac{I_{ref}}{I_o}. \]
   \item 電流變動：$\Delta I_o=\dfrac{\Delta V_o}{R_o}$ (12.30)。
@@ -114,13 +114,14 @@ $A=2G_m\,(R_L\Vert r_{o2}\Vert r_{o4})$，$R_L\to\infty$ 時 $A=\dfrac{V_A}{2V_T
 %---------------------------------------------------------------
 \prob{圖 P12.1，$V_{CC}=10$ V、$R_C=5$ k$\Omega$、$I_A=2$ mA。求 $V_{o1}$、$V_{o2}$。
 \\(1) $V_1=10\text{mV}\sin\omega_1t$、$V_2=0$。\;(2) $V_1=10\text{mV}\sin\omega_1t$、$V_2=5\text{mV}\sin\omega_2t$（$\omega_2\neq\omega_1$）。}
-\sol 先求單端增益：$G_m=\dfrac{2\text{m}}{4(25\text{m})}=0.02$ S，單端 $A_{d1}=-G_mR_C=-0.02(5\text{k})=-100$，$A_{d2}=+100$。輸出 $V_{o1}=A_{d1}V_d$、$V_{o2}=A_{d2}V_d$，$V_d=V_1-V_2$。\\
+\sol 先求單端增益：$G_m=\dfrac{2\text{m}}{4(25\text{m})}=0.02$ S，單端 $A_{d1}=-G_mR_C=-0.02(5\text{k})=-100$，$A_{d2}=+100$。\\
+DC 偏壓：$V_{o(DC)}=V_{CC}-(I_A/2)R_C=10-1\text{m}\times5\text{k}=5$ V。輸出 $V_{oi}=V_{o(DC)}+A_{di}V_d$，$V_d=V_1-V_2$。\\
 \textbf{(1)} $V_d=10\text{mV}\sin\omega_1t$：
-\[ V_{o1}=-100\,V_d=-1\,\sin\omega_1t\ \text{(V)},\qquad V_{o2}=+1\,\sin\omega_1t\ \text{(V)}. \]
+\[ V_{o1}=5-1\,\sin\omega_1t\ \text{(V)},\qquad V_{o2}=5+1\,\sin\omega_1t\ \text{(V)}. \]
 \textbf{(2)} $V_d=10\text{mV}\sin\omega_1t-5\text{mV}\sin\omega_2t$：
-\[ V_{o1}=-1\sin\omega_1t+0.5\sin\omega_2t\ \text{(V)},\quad
-   V_{o2}=+1\sin\omega_1t-0.5\sin\omega_2t\ \text{(V)}. \]
-\ans{以單端差動增益 $\mp100$ 乘上 $V_d$ 即得（理想電流源使共模增益$\approx0$）。}
+\[ V_{o1}=5-1\sin\omega_1t+0.5\sin\omega_2t\ \text{(V)},\quad
+   V_{o2}=5+1\sin\omega_1t-0.5\sin\omega_2t\ \text{(V)}. \]
+\ans{DC 偏壓 5 V，再疊加單端差動增益 $\mp100$ 乘 $V_d$。}
 
 %---------------------------------------------------------------
 \prob{圖 P12.1，$I_A=2$ mA、電流源輸出電阻 $R_A=10$ M$\Omega$、$R_{C1}=10$ k$\Omega$、$R_{C2}=10.1$ k$\Omega$。求 (1) $A_{cm}$；(2) CMRR。}
@@ -163,7 +164,7 @@ $G_m=\dfrac{2\text{m}}{4(25\text{m})}=0.02$ S，$A_d=-2G_mR_C\approx-2(0.02)(10\
 
 \sol Wilson 參考支路有兩個 $V_{BE}$ 壓降：
 \[ I_{ref}=\frac{V_{CC}-1.4}{R_{ref}}=\frac{10.6}{10\text{k}}=1.06\ \text{mA},\quad
-   I_o=\frac{I_{ref}}{1+\frac{2}{\beta(\beta+1)}}\approx1.06\ \text{mA}\ (\text{誤差}\approx0.02\%). \]
+   I_o=\frac{I_{ref}}{1+\frac{2}{\beta(\beta+2)}}\approx1.06\ \text{mA}\ (\text{誤差}\approx0.02\%). \]
 Wilson 輸出電阻提高至 $R_o=\dfrac{\beta}{2}r_o$：
 \[ R_o=\frac{\beta}{2}\cdot\frac{V_A}{I_o}=50\times\frac{200}{1.06\text{m}}\approx9.43\ \text{M}\Omega,\quad
    \Delta I_o=\frac{5}{9.43\text{M}}\approx0.53\ \mu\text{A}. \]
