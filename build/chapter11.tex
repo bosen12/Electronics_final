@@ -130,18 +130,16 @@ $V_i=V_H=4.8$ V：npn 導通，其基極電流由\emph{輸入源}供應（非 $V
 \sol 靜態功率 $=V_{CC}\times$（由 $V_{CC}$ 流出的平均電流）。$R_3$ 為輸入管 $Q_4$ 之基極電阻。
 
 \textbf{$V_i=V_L=0.2$ V：}$Q_4$ 飽和把 $Q_3$ 基極拉低 $\Rightarrow Q_3$ 截止。主要電流經 $R_3\to Q_4$ 之 B--E $\to$ 輸入端：
-\[ I_L=\frac{V_{CC}-V_{BE(on)}-V_L}{R_3}=\frac{5-0.7-0.2}{4\text{k}}=1.025\ \text{mA},\quad P_L=V_{CC}I_L\approx5.13\ \text{mW}. \]
+\[ I_{B4}=\frac{V_{CC}-V_{BE(on)}-V_L}{R_3}=\frac{5-0.7-0.2}{4\text{k}}=1.025\ \text{mA},\quad P_{ON}=V_{CC}\,I_{B4}=5\times1.025=5.125\ \text{mW}. \]
 \textbf{$V_i=V_H=3.6$ V：}$Q_4$ 進入反向主動模式（B--C 正偏），$Q_3$ 飽和導通。
-須考慮 $R_1$ 使 $Q_3$ 射極電位上升。設 $V_{E3}$ 為 $Q_3$ 射極電壓，由 $R_3$、$R_2$、$R_1$ 聯立：
-\[
-V_{B4}=V_{E3}+1.4,\quad I_{R_3}=\frac{5-V_{E3}-1.4}{4\text{k}},\quad
-I_{R_2}=\frac{5-V_{E3}-0.2}{1.6\text{k}},\quad I_{E3}=\frac{V_{E3}}{1\text{k}}
-\]
-由 $I_{E3}=I_{R_2}+I_{R_3}$ 解得
-\[ V_{E3}=2.08\ \text{V},\quad I_{R_3}\approx0.38\ \text{mA},\quad I_{R_2}\approx1.70\ \text{mA}. \]
-\[ I_H=I_{R_3}+I_{R_2}=2.08\ \text{mA},\quad P_H=V_{CC}I_H=5\times2.08=10.4\ \text{mW}. \]
-\[ P=\tfrac12(P_L+P_H)\approx\tfrac12(5.13+10.4)\approx7.8\ \text{mW}. \]
-\ans{$P_{avg}\approx7.8$ mW。}
+節點 A（$Q_3$ 射極）被輸出級電晶體之 $V_{BE}$ 箝位：$V_A=V_{BE(on)}=0.7$ V；
+節點 B（$Q_3$ 集極）$V_B=V_A+V_{CE(sat)}=0.7+0.2=0.9$ V。
+$Q_4$ 基極電壓 $=V_A+V_{BE(Q_3)}+V_{BC(Q_4)}=0.7+0.7+0.7=2.1$ V，故
+\[ I_{B4}=\frac{5-2.1}{4\text{k}}=0.725\ \text{mA},\qquad
+   I_{C3}=\frac{V_{CC}-V_B}{R_2}=\frac{5-0.9}{1.6\text{k}}=2.5625\ \text{mA}. \]
+\[ P_{OFF}=V_{CC}(I_{B4}+I_{C3})=5\times(0.725+2.5625)=16.4375\ \text{mW}. \]
+\[ P=\tfrac12(P_{ON}+P_{OFF})=\tfrac12(5.125+16.4375)\approx10.78\ \text{mW}. \]
+\ans{$P_{avg}\approx10.78$ mW。}
 
 %---------------------------------------------------------------
 \begin{minipage}{0.62\linewidth}
