@@ -186,13 +186,13 @@ $Q_2$ 飽和故 $V_{CE(sat)}=0.2$ V，$V_D=0.7$ V。設 $I_o$ 為輸出電流：
 \figc{fig/P11_6.png}{0.62\linewidth}{圖 P11.6}
 \end{minipage}
 
-\sol $Q_1$ 為射極隨耦器，基極電流經 $R_{ON}$ 由 $V_{DD}$ 供給，而對電容充電的射極電流 $=(\beta+1)\times$ 基極電流。故電容所見之等效電阻
-\[ R_{eq}=\frac{R_{ON}}{\beta+1}=\frac{100}{101}\approx0.99\ \Omega,\qquad
-   \tau=R_{eq}C=\frac{R_{ON}C}{\beta+1}=\frac{100\times10\text{p}}{101}\approx9.9\ \text{ps}. \]
-\note{以一階 $RC$ 充電近似，$Q_1$ 提供 $(\beta+1)$ 倍電流}
-$V_o$ 由 $V_L$ 充向 $V_{DD}-V_{BE}$，充至 $V_H$（約終值）所需時間約為數個 $\tau$：
-\[ t\approx 3\tau\approx 3\times9.9\text{ps}\approx30\ \text{ps}. \]
-\ans{等效時間常數 $\tau=R_{ON}C/(\beta+1)\approx9.9$ ps，充至 $V_H$ 約 $\sim30$ ps——比純 $R_{ON}C=1$ ns 快約 $(\beta+1)$ 倍，正是 BiCMOS 速度優勢所在。}
+\sol 充電時 $Q_1$ 為射極隨耦器，射極電流 $I_E=(\beta+1)I_B$ 對 $C$ 充電。初始 $V_o=V_L=0.5$ V：
+\[ I_{B,start}=\frac{V_{DD}-V_{BE}-V_L}{R_{ON}}=\frac{5-0.7-0.5}{100}=0.038\ \text{A},\quad
+   I_{E,start}=(\beta+1)I_{B,start}=101\times0.038=3.838\ \text{A}. \]
+充電結束時 $V_o\to V_H$，$I_B$ 降至零 $\Rightarrow I_{E,end}=0$。以平均電流近似：
+\[ I_{avg}=\tfrac12(I_{E,start}+I_{E,end})=\tfrac12(3.838+0)=1.919\ \text{A}. \]
+\[ t=\frac{C(V_H-V_L)}{I_{avg}}=\frac{10\text{p}\times(4.5-0.5)}{1.919}=2.08\times10^{-11}\ \text{s}\approx20.8\ \text{ps}. \]
+\ans{$t\approx20.8$ ps。}
 
 %---------------------------------------------------------------
 \begin{minipage}{0.64\linewidth}
@@ -202,9 +202,12 @@ $V_o$ 由 $V_L$ 充向 $V_{DD}-V_{BE}$，充至 $V_H$（約終值）所需時間
 \figc{fig/P11_7.png}{0.78\linewidth}{圖 P11.7}
 \end{minipage}
 
-\sol 與題 9 對稱：下拉 npn $Q_2$ 之基極電流經 $R_{ON}$ 提供，放電（集極）電流為其 $(\beta+1)$ 倍，等效時間常數
-\[ \tau=\frac{R_{ON}C}{\beta+1}=\frac{100\times10\text{p}}{101}\approx9.9\ \text{ps},\qquad
-   t\approx3\tau\approx30\ \text{ps}. \]
-\ans{$\tau\approx9.9$ ps，放電至 $V_L$ 約 $\sim30$ ps（同樣被 BJT 電流增益加速約 $(\beta+1)$ 倍）。}
+\sol 放電時 $Q_2$ 之射極電流 $I_E=(\beta+1)I_B$ 對 $C$ 放電。初始 $V_o=V_H=4.5$ V：
+\[ I_{B,start}=\frac{V_H-V_{BE}}{R_{ON}}=\frac{4.5-0.7}{100}=0.038\ \text{A},\quad
+   I_{E,start}=(\beta+1)I_{B,start}=101\times0.038=3.838\ \text{A}. \]
+放電結束時 $V_o\to V_L$，$I_B$ 降至零 $\Rightarrow I_{E,end}=0$。以平均電流近似：
+\[ I_{avg}=\tfrac12(I_{E,start}+I_{E,end})=1.919\ \text{A}. \]
+\[ t=\frac{C(V_H-V_L)}{I_{avg}}=\frac{10\text{p}\times4}{1.919}=2.08\times10^{-11}\ \text{s}\approx20.8\ \text{ps}. \]
+\ans{$t\approx20.8$ ps。}
 
 \end{document}
